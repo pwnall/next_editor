@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>NextEditor Test</title>
+  <meta charset="utf-8" />
+  <link href="style.css" rel="stylesheet" type="text/css" />
+  <script src="jquery-1.4.3.js" type="text/javascript"></script>
+  <script src="../src/next_editor.js" type="text/javascript"></script>
+</head>
+
+<body>
+  <div>
+    <header>
+      <h1>NextEditor Test / Demo Page</h1>
+    </header>
+    <div>
+      <form action="#" class="testForm">
+        <textarea class="testInput"></textarea>
+        <input type="Submit" value="Send" />
+      </form>
+      <script type="text/javascript">
+        var inputTextArea = $('.testInput')[0];
+        var submitForm = $('.testForm')[0];        
+        NextEditor.create(inputTextArea, submitForm);
+      </script>
+    </div>
+  </div>
+</body>
+</html>

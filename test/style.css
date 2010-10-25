@@ -1,0 +1,28 @@
+.testForm {
+  position: relative;
+  width: 800px;
+  height: 240px;
+}
+.testInput {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 90%;
+  height: 100%;
+  
+  margin: 0;
+  border: 1px solid #6666FF;
+  border-radius: 4px;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  box-shadow: inset 2px 2px 2px #DEDEFF;
+  -moz-box-shadow: inset 2px 2px 2px #DEDEFF;
+  -webkit-box-shadow: inset 2px 2px 2px #DEDEFF;
+  padding: 3px;
+}
+.testForm input {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 64px;
+}
