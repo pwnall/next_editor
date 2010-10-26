@@ -1,0 +1,18 @@
+NextEditor is a lightweight syntax-highlighting editor that works on all current
+browsers, and handles IMEs (non-latin character input) and touchscreens
+gracefully. The code is used in production at http://nextlang.com.
+
+NextEditor does not subscribe to the latest trend of re-implementing the input
+field UI by using a canvas element, because this method does not work well for
+IMEs, at the current time. Instead, NextEditor's input is backed by elements
+that are traditionally used for input. NextEditor implements syntax highlighting
+by tagging spans with classes, so it can use any highlighting style that can be
+expressed in CSS. 
+
+On modern browsers, NextEditor uses the HTML5 contentEditable attribute for rich
+text inputs, and re-formats the DOM inside the editor on every change. This
+allows full flexibility in the syntax highlighting CSS. On older browsers, a div
+is overlaid right on top of a textarea, so the syntax highlighting CSS cannot
+change the width of characters. For example, the highlighting spans must have
+padding-left and padding-right set to 0, and the same font-family and font-size
+as un-highlighted text. 

@@ -1,34 +1,162 @@
 /** NextLang message composer UI.
  * Copyright 2010 Victor Costan and Ying Yin. MIT License.
  */
+
+/** */
+NextEditor = {};
  
-/** Namespace for the word-highlighting editor. */
-NextEditor = {
-  /** Constructs a word-highlighting editor.
-   *
-   * Args:
-   *   editorElement:: div element that displays the formatted text.
-   *   inputElement:: textarea for capturing events.
-   *   formElement:: for submitting the text message.
-   */
-  create: function(editorElement, inputElement, formElement) {
-    var klass = this.editorClass();
-    return new klass(editorElement, inputElement, formElement);
-  },
+/** Constructs a syntax-highlighting editor.
+ *
+ * The options object should have the following properties:
+ *   inputElement:: textarea serving as a placeholder for the editor; the
+ *                  textarea will receive the editor's input
+ *   formElement:: submitted when the user presses Enter (optional)
+ *   forceWater:: uses the Water UI, even in newer browsers; intended for
+ *                debugging the rigid CSS, or the Water itself
+ */
+NextEditor.create = function(options) {
+  var klass = this.editorClass(options.forceWater);
+  return new klass(options);
+};
+
+/** Creates an input handler for the NextLang syntax-highlighting editor.
+ *
+ * The options object should have the following properties:
+ *   eventSource:: the input-receiving element
+ *   observer:: the object which receives input notifications
+ *   multiline:: if set, Enter key presses won't be treated as form submission
+ *               requests
+ *   imeSupport:: supress change notifications while an IME interface is active
+ * 
+ * The following notifications will be dispatched:
+ *   onSubmitKey:: the user expressed their desire to submit the editor's input
+ *                 (e.g., by pressing the Enter key)
+ *   
+ */
+NextEditor.Input = function(options) {
+  this.observer = options.observer;
+  if (!this.observer) {
+    window.console && console.error("No observer given! noop");
+    return;
+  }
+
+  var eventSource = options.eventSource;
+  if (!eventSource) {
+    window.console && console.error("No eventSource given! noop");
+    return;
+  }
+
+  this.createUnboundFunctions();
   
-  /** Set to true for debugging the Water (compatibility) editor. */
-  alwaysUseWater: false,
-  
-  /** The class to be used for the editor. */
-  editorClass: function() {
-    if (!this.alwaysUseWater && NextEditor.Support.hasContentEditable()) {
-      return NextEditor.Fire;
-    }
-    else {
-      return NextEditor.Water;
+  if (options.imeSupport) {
+    $(eventSource).bind('compositionstart', this.onIMECompositionStart, this);  
+    $(eventSource).bind('compositionend', this.onIMECompositionEnd, this);
+  }  
+  if (!options.multiline) {
+    $(eventSource).bind('keydown', this.onKeyDown, this);
+  }
+
+  if (NextEditor.Support.hasTextInput()) {
+    $(eventSource).bind('textInput', this.onTextInput, this);
+  }
+  else {
+    // Firefox doesn't have a uniform "textInput" event.
+    $(eventSource).bind('keyup', this.onFirefoxKey, this);
+    $(eventSource).bind('focus', this.onFocus, this);
+    $(eventSource).bind('blur', this.onBlur, this);
+
+    this.isFocused =
+        document.hasFocus() && document.activeElement == eventSource;
+    if (this.isFocused) {
+      this.changeTick();
     }
   }
 }
+
+/** Creates unbound versions of some methods, with minimum closure overhead. */
+NextEditor.Input.prototype.createUnboundFunctions = function() {
+  var context = this;
+  this.unboundChangeTick = function() { context.changeTick() };
+}
+
+/** True when an IME UI is displayed to help the user select characters. */
+NextEditor.Input.prototype.imeCompositionInProgress = false;
+
+/** Called when an IME UI is displayed to help the user select characters.
+ *
+ * We won't change the editor's DOM while the IME UI is messing with the
+ * input, because that throws off the IME UI.
+ */
+NextEditor.Input.prototype.onIMECompositionStart = function(event) {
+  event.data.imeCompositionInProgress = true;
+  return true;
+}
+
+/** Called when IME input stops.
+ *
+ * We won't change the editor's DOM while IME input is happening, because that
+ * throws off the IME editors.
+ */
+NextEditor.Input.prototype.onIMECompositionEnd = function(event) {
+  event.data.imeCompositionInProgress = false;
+  setTimeout(function() { e.onChange(event); }, 10);
+  return true;
+}
+
+/** Fires the submission callback when the user presses Enter. */
+NextEditor.Input.prototype.onKeyDown = function(event) {
+  if(event.which == 13) {
+    event.preventDefault();
+    e.submitForm();
+    return false;
+  }
+  return true;
+}
+
+/** Called on textInput events, for browsers that do DOM 3 events. */
+NextEditor.Input.prototype.onTextInput = function(event) {
+  setTimeout(function() { e.onChange(event); }, 10);
+  return true;
+}
+
+/** Called in Firefox when key presses are detected.
+ * 
+ * This never happens while an IME interface is active.
+ */
+NextEditor.Input.prototype.onFirefoxKey = function(event) {
+  event.data.onFirefoxTextImeMode = false;
+  setTimeout(function() { e.onChange(event); }, 10);
+  return true;
+}
+
+/** True when the input element has the focus. */
+NextEditor.Input.prototype.isFocused = false;
+
+/** Called when the editor element receives focus. We poll for changes. */
+NextEditor.Input.prototype.onFocus = function() {
+  event.data.isFocused = true;
+  event.data.changeTick();
+}
+
+/** Called when the editor element loses focus. */
+NextEditor.Input.prototype.onBlur = function(event) {
+  event.data.isFocused = false;
+}
+
+/** While the editor element has focus, check for changes every 100ms. */
+NextEditor.Input.prototype.changeTick = function(event) {
+  this.notifyChange(event);
+  if (this.isFocused) setTimeout(e.unboundChangeTick, 100);
+}
+
+  
+/** The class to be used for the editor's UI. */
+NextEditor.editorClass = function(forceWater) {
+  if (forceWater || !NextEditor.Support.hasContentEditable()) {
+    return NextEditor.Water;
+  }
+  return NextEditor.Fire;
+};
 
 /** Editor UI for modern browsers that support contentEditable=true fields.
  *
@@ -113,89 +241,6 @@ NextEditor.Fire = function(editorElement, inputElement, formElement) {
     }
   }
 
-  /** True when an IME UI is displayed to help the user select characters. */
-  e.imeCompositionInProgress = false;
-
-  /** Called on DOM events indicating the editor's contents may have changed. */
-  e.onChange = function(event) {
-    if (e.imeCompositionInProgress == true)
-      return;
-    
-    e.contentMayHaveChanged();
-  }
-  
-  /** Called when an IME UI is displayed to help the user select characters.
-   *
-   * We won't change the editor's DOM while the IME UI is messing with the
-   * input, because that throws off the IME UI.
-   */
-  e.onIMECompositionStart = function(event) {
-    e.imeCompositionInProgress = true;
-    return true;
-  }
-  $(e.editorElement).bind('compositionstart', e.onIMECompositionStart);
-  
-  /** Called when IME input stops.
-   *
-   * We won't change the editor's DOM while IME input is happening, because that
-   * throws off the IME editors.
-   */
-  e.onIMECompositionEnd = function(event) {
-    e.imeCompositionInProgress = false;
-    setTimeout(function() { e.onChange(event); }, 10);
-    return true;
-  }
-  $(e.editorElement).bind('compositionend', e.onIMECompositionEnd);
-  
-  
-  /** Submits the form when the user presses Enter. */
-  e.onKeyDown = function(event) {
-    if(event.which == 13) {
-      event.preventDefault();
-      e.submitForm();
-      return false;
-    }
-    return true;
-  }
-  $(e.editorElement).bind('keydown', e.onKeyDown);
-
-  if (NextEditor.Support.hasTextInput()) {
-    /** Called on textInput events, for browsers that do DOM 3 events. */
-    e.onTextInput = function(event) {
-      setTimeout(function() { e.onChange(event); }, 10);
-      return true;
-    }
-    $(e.editorElement).bind('textInput', e.onTextInput);
-  }
-  else {
-    /** Firefox doesn't have a uniform "textInput" event. */
-    e.onFirefoxKey = function(event) {
-      e.onFirefoxTextImeMode = false;
-      setTimeout(function() { e.onChange(event); }, 10);
-      return true;
-    }
-    $(e.editorElement).bind('keyup', e.onFirefoxKey);
-
-    // True when the editor element has the input focus.
-    e.isFocused = false;
-    // While the editor element has focus, check for changes every 100ms.
-    e.watchdog = function(event) {
-      e.onChange(event);
-      if (e.isFocused) setTimeout(e.watchdog, 100);
-    }
-    /** Called when the editor element receives focus. We poll for changes. */
-    e.onFocus = function() {
-      e.isFocused = true;
-      e.watchdog();
-    }
-    $(e.editorElement).bind('focus', e.onFocus);
-    /** Called when the editor element loses focus. We stop polling. */
-    e.onBlur = function() {
-      e.isFocused = false;
-    }
-    $(e.editorElement).bind('blur', e.onBlur);
-    e.watchdog();
-  }
 }
 
 /** Namespace for browser-dependent hacks. */
