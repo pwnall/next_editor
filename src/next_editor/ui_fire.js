@@ -48,7 +48,7 @@ NextEditor.UI.Fire.prototype.buildEditor = function() {
   $(this.inputElement).before(this.editorElement);
   
   var text = $(this.inputElement).attr('value');
-  var tokens = this.tokenizer.tokenize(text);
+  var tokens = this.tokenizer.tokenize(text + "\n");
   var cursor = (document.activeElement == this.editorElement) ?
                text.length : null;
   
@@ -66,6 +66,7 @@ NextEditor.UI.Fire.prototype.onPossibleChange = function() {
     
   var selection = window.getSelection();
   var content = NextEditor.DOM.elementContent(this.editorElement, selection);
+  console.log([content.text, console.cursor]);
   var tokens = this.tokenizer.tokenize(content.text);
   var domData = NextEditor.DOM.buildDom(tokens, content.cursor);  
 
@@ -81,7 +82,7 @@ NextEditor.UI.Fire.prototype.onPossibleChange = function() {
  * Args:
  *   domData:: the new DOM contents and selection information for the editor UI
  */
-NextEditor.UI.Fire.prototype.setEditorContent = function(domData) {
+NextEditor.UI.Fire.prototype.setEditorContent = function(domData) {  
   this.editorElement.innerHTML = '';
   for (var i = 0; i < domData.nodes.length; i++) {
     this.editorElement.appendChild(domData.nodes[i]);
