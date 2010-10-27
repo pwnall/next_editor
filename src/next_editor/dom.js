@@ -11,7 +11,7 @@ NextEditor.DOM = { };
  *   text:: a string containing the element's inner text
  *   cursor:: the index of the character that the cursor precedes
  */
-NextEditor.DOM.elementContents = function(element, selection) {
+NextEditor.DOM.elementContent = function(element, selection) {
   var text = '';
   var cursor = null;
   if (element.childNodes && element.childNodes.length > 0) {
@@ -59,7 +59,7 @@ NextEditor.DOM.elementContents = function(element, selection) {
  *                  it; this might be the index of a character in a text node,
  *                  or the index of an element within its containing element
  */
-NextEditor.DOM.buildDom: function(tokens, cursor) {
+NextEditor.DOM.buildDom = function(tokens, cursor) {
   var nodes = [];
   var cursorNode = null;
   var cursorOffset = null;

@@ -26,3 +26,13 @@
   top: 0;
   width: 64px;
 }
+
+.testInput .word {
+  display: inline-block;
+  color: #6666FF;
+  background-color: #DEDEFF;
+}
+
+.testInput .nonword {
+  color: #666666;
+}

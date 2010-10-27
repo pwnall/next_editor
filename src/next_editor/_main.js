@@ -13,16 +13,34 @@ NextEditor = {};
  *   formElement:: submitted when the user presses Enter (optional)
  *   forceWater:: uses the Water UI, even in newer browsers; intended for
  *                debugging the rigid CSS, or the Water itself
+ *   tokenizer:: decies who 
  */
 NextEditor.create = function(options) {
-  var klass = this.editorClass(options.forceWater);
-
-  var editorUI = new klass(options);
-  var inputHandling = new NextEditor.Input({
+  var formElement = options.formElement;
+  if (formElement) {
+    var formSubmitter = new NextEditor.Submitter(formElement);   
+  }
+  else {
+    var formSubmitter = null;
+  }
+  
+  var klass = NextEditor.UI.editorClass(options.forceWater);
+  var editorUI = new klass({
+    inputElement: options.inputElement,
+    formSubmitter: formSubmitter,
+    tokenizer: tokenizer
+  });
+  
+  var tokenizer = options.tokenizer;
+  if (!tokenizer) {
+    tokenizer = new NextEditor.Tokenizers.WordTokenizer({});
+  }
+  
+  var inputController = new NextEditor.Input({
     eventSource: options.inputElement,
     observer: editorUI,
-    multiLine: options.multiLine
+    multiLine: (formSubmitter ? false : true)
   });
 
-  return new klass(options);
+  return { ui: editorUI, input: inputController, tokenizer: tokenizer };
 };
