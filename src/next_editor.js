@@ -181,5 +181,7 @@ NextEditor.Water = function(editorElement, inputElement, formElement) {
   e.onChange = function(event) {
     e.contentMayHaveChanged();
   }
+  $(e.inputElement).bind('keypress', e.onChange);
+  $(e.inputElement).bind('input', e.onChange);
 }
 
