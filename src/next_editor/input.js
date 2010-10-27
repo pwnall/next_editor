@@ -31,21 +31,21 @@ NextEditor.Input = function(options) {
   this.createUnboundFunctions();
   
   if (options.imeSupport) {
-    $(eventSource).bind('compositionstart', this.onIMECompositionStart, this);  
-    $(eventSource).bind('compositionend', this.onIMECompositionEnd, this);
+    $(eventSource).bind('compositionstart', this, this.onIMECompositionStart);  
+    $(eventSource).bind('compositionend', this, this.onIMECompositionEnd);
   }  
   if (!options.multiLine) {
-    $(eventSource).bind('keydown', this.onKeyDown, this);
+    $(eventSource).bind('keydown', this, this.onKeyDown);
   }
 
   if (NextEditor.Support.hasTextInput()) {
-    $(eventSource).bind('textInput', this.onTextInput, this);
+    $(eventSource).bind('textInput', this, this.onTextInput);
   }
   else {
     // Firefox doesn't have a uniform "textInput" event.
-    $(eventSource).bind('keyup', this.onFirefoxKey, this);
-    $(eventSource).bind('focus', this.onFocus, this);
-    $(eventSource).bind('blur', this.onBlur, this);
+    $(eventSource).bind('keyup', this, this.onFirefoxKey);
+    $(eventSource).bind('focus', this, this.onFocus);
+    $(eventSource).bind('blur', this, this.onBlur);
 
     this.isFocused =
         document.hasFocus() && document.activeElement == eventSource;

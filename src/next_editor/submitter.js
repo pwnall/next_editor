@@ -24,10 +24,10 @@ NextEditor.Submitter.prototype.submit = function() {
   if (this.submitted) {
     return;
   }  
-  e.submitted = true;
+  this.submitted = true;
   
   // HACK: copy-pasted from rails.js because bubbling a submit event failed
-  var el      = $(e.formElement),
+  var el      = $(this.formElement),
       method  = el.attr('method') || el.attr('data-method') || 'GET',
       url     = el.attr('action') || el.attr('href'),
       dataType  = el.attr('data-type')  || 'script';

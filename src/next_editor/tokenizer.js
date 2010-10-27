@@ -24,6 +24,8 @@ NextEditor.Tokenizers.WordTokenizer.prototype.nonWordType = 'nonword';
 NextEditor.Tokenizers.WordTokenizer.prototype.genericWordType = 'word';
 /** Map between words to be highlighted and their token types. */
 NextEditor.Tokenizers.WordTokenizer.prototype.highlightedWords = {};
+/** True if the "words" need to be further segmented (CJK languages). */
+NextEditor.Tokenizers.WordTokenizer.prototype.useSegmentation = false;
 
 /** Standard tokenizing function.
  * 
@@ -45,36 +47,36 @@ NextEditor.Tokenizers.WordTokenizer.prototype.tokenize = function(text) {
   for (var i = 0; i < text.length; i++) {
     if (text[i].match(/[A-Za-z]|[\u3040-\u309F]|[\u30A0-\u30FF]|[\u4E00-\u9FFF\uF900-\uFAFF\u3400-\u4DBF]/)) {
       if (nonWordStart != null) {
-        ir.append([nonWordStart, i - nonWordStart, null, false]);
-        nonWordStart = null;        
+        ir.push([nonWordStart, i, null, false]);
+        nonWordStart = null;
       }
       if (wordStart == null) wordStart = i;
     }
     else {
       if (wordStart != null) {
-        ir.append([wordStart, i - wordStart, null, true]);
+        ir.push([wordStart, i, null, true]);
         wordStart = null;
       }
-      if (nonWordStart == null) {
-        nonWordStart = i;
-      }
+      if (nonWordStart == null) nonWordStart = i;
     }
   }
   if (nonWordStart != null) {
-    ir.append([nonWordStart, i - nonWordStart, null, false]);
+    ir.push([nonWordStart, text.length, null, false]);
   }
   if (wordStart != null) {
-    ir.append([wordStart, i - wordStart, null, true]);
+    ir.push([wordStart, text.length, null, true]);
   }
+  console.log([ir]);
   
   // Final representation: segmentation, proper types.
   var tokens = [];
   for (var i = 0; i < ir.length; i++) {
     var token = ir[i];
+    token[1] -= token[0];
     if (!token[3]) {
       token[2] = text.substr(token[0], token[1]);
       token[3] = this.nonWordType;
-      tokens.append(token);
+      tokens.push(token);
       continue;
     }
     
@@ -86,11 +88,11 @@ NextEditor.Tokenizers.WordTokenizer.prototype.tokenize = function(text) {
     }
     var tokenStart = token[0];
     for (var j = 0; j < segments.length; j++) {
-      var segmentLength = segments[i];
+      var segmentLength = segments[j];
       var segmentText = text.substr(tokenStart, segmentLength);
       var tokenType = this.highlightedWords[segmentText] ||
                       this.genericWordType;
-      tokens.append([tokenStart, segmentLength, segmentText, tokenType]);
+      tokens.push([tokenStart, segmentLength, segmentText, tokenType]);
       tokenStart += segmentLength;
     }
   }

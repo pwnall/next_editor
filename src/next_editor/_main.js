@@ -23,21 +23,22 @@ NextEditor.create = function(options) {
   else {
     var formSubmitter = null;
   }
+    
+  var tokenizer = options.tokenizer;
+  if (!tokenizer) {
+    tokenizer = new NextEditor.Tokenizers.WordTokenizer({});
+  }
   
   var klass = NextEditor.UI.editorClass(options.forceWater);
   var editorUI = new klass({
     inputElement: options.inputElement,
     formSubmitter: formSubmitter,
     tokenizer: tokenizer
-  });
-  
-  var tokenizer = options.tokenizer;
-  if (!tokenizer) {
-    tokenizer = new NextEditor.Tokenizers.WordTokenizer({});
-  }
+  });  
   
   var inputController = new NextEditor.Input({
-    eventSource: options.inputElement,
+    eventSource: editorUI.eventSource(),
+    imeSupport: editorUI.needsImeSupport(),
     observer: editorUI,
     multiLine: (formSubmitter ? false : true)
   });

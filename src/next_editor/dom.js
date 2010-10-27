@@ -16,7 +16,7 @@ NextEditor.DOM.elementContent = function(element, selection) {
   var cursor = null;
   if (element.childNodes && element.childNodes.length > 0) {
     for (var i = 0; i < element.childNodes.length; i++) {
-      childData = this.parseElement(element.childNodes[i], selection);
+      childData = this.elementContent(element.childNodes[i], selection);
       if (childData.cursor != null) {
         cursor = text.length + childData.cursor;
       }
@@ -83,11 +83,15 @@ NextEditor.DOM.buildDom = function(tokens, cursor) {
       }
       
       // Run of non-newline characters in token.
-      var runText = runs[j];
+      var runText = runs[j];      
       var runLength = runText.length;
+      if (runLength == 0) {
+        continue;
+      }
       var span = document.createElement('span');
       var spanText = document.createTextNode(runText);
       span.appendChild(spanText);
+      span.className = token[3];
       nodes.push(span);      
       if (cursor > textOffset && cursor < textOffset + runLength) {
         cursorNode = span;
@@ -96,7 +100,7 @@ NextEditor.DOM.buildDom = function(tokens, cursor) {
       textOffset += runLength;
     }
     if (cursor == textOffset) {
-      cursorOffset = output.nodes.length;
+      cursorOffset = nodes.length;
     }
   }
 

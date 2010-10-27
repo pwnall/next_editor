@@ -20,7 +20,7 @@ NextEditor.UI.Fire = function(options) {
     return;
   }
   
-  this.formSubmitter = formSubmitter;
+  this.formSubmitter = options.formSubmitter;
   this.buildEditor();
 };
 
@@ -37,10 +37,15 @@ NextEditor.UI.Fire.prototype.editorElement = null;
 NextEditor.UI.Fire.prototype.buildEditor = function() {
   var inputClass = this.inputElement.className;
   this.inputElement.className = '';
+  this.inputElement.style.visibility = 'hidden';
+  this.inputElement.style.position = 'absolute';
+  this.inputElement.style.width = 0;
+  this.inputElement.style.height = 0;
   
   this.editorElement = document.createElement('div');
-  this.editorElement.className = cssClass;
-  $(this.inputElement.parentNode).before(this.editorElement);
+  this.editorElement.className = inputClass;
+  this.editorElement.contentEditable = "true";
+  $(this.inputElement).before(this.editorElement);
   
   var text = $(this.inputElement).attr('value');
   var cursor = (document.activeElement == this.editorElement) ?
@@ -61,12 +66,12 @@ NextEditor.UI.Fire.prototype.onPossibleChange = function() {
   var selection = window.getSelection();
   var content = NextEditor.DOM.elementContent(this.editorElement, selection);
   var tokens = this.tokenizer.tokenize(content.text);
-  var domData = NextEditor.DOM.buildDom(content.text, content.cursor);  
+  var domData = NextEditor.DOM.buildDom(tokens, content.cursor);  
 
   if (domData.cursorOffset != null) {
     this.setEditorContent(domData);    
     this.oldContent = this.editorElement.innerHTML;
-    $(this.inputElement).attr('value', contentData.text);
+    $(this.inputElement).attr('value', content.text);
   }
 };
 
@@ -86,6 +91,8 @@ NextEditor.UI.Fire.prototype.setEditorContent = function(domData) {
     var node = domData.cursorNode || this.editorElement;
     range.setStart(node, domData.cursorOffset);
     range.setEnd(node, domData.cursorOffset);
+    
+    var selection = document.getSelection();
     selection.removeAllRanges();
     selection.addRange(range);  
   }
@@ -95,3 +102,13 @@ NextEditor.UI.Fire.prototype.setEditorContent = function(domData) {
 NextEditor.UI.Fire.prototype.onSubmitKey = function() {
   this.formSubmitter.submit();
 };
+
+/** The DOM element receiving user input events. */
+NextEditor.UI.Fire.prototype.eventSource = function() {
+  return this.editorElement;
+}
+
+/** True if no change events should be generated when an IME UI is active. */
+NextEditor.UI.Fire.prototype.needsImeSupport = function() {
+  return true;
+}
