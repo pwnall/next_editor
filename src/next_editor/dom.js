@@ -14,7 +14,6 @@ NextEditor.DOM = { };
 NextEditor.DOM.elementContent = function(element, selection) {
   var text = '';
   var cursor = null;
-  console.log([selection.focusNode, selection.focusOffset]);
   if (element.childNodes && element.childNodes.length > 0) {
     for (var i = 0; i < element.childNodes.length; i++) {
       childData = this.elementContent(element.childNodes[i], selection);
@@ -32,7 +31,6 @@ NextEditor.DOM.elementContent = function(element, selection) {
       cursor = selection.focusOffset;        
     }
     
-    console.log([element.nodeName]);
     if (element.nodeName == 'BR') {
       text = "\n";
     }

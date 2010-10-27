@@ -136,5 +136,7 @@ NextEditor.Input.prototype.changeTick = function(event) {
 
 /** Notifies the observer that the input field contents might have changed. */
 NextEditor.Input.prototype.notifyChange = function() {
+  if (this.imeCompositionInProgress)
+    return;
   this.observer.onPossibleChange();
 };

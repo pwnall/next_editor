@@ -66,14 +66,25 @@ NextEditor.UI.Fire.prototype.onPossibleChange = function() {
     
   var selection = window.getSelection();
   var content = NextEditor.DOM.elementContent(this.editorElement, selection);
-  console.log([content.text, console.cursor]);
+  
+  // Always have a newline at the end, to appease Firefox. Never allow the
+  // cursor to be set there.
+  if (content.text[content.text.length - 1] != "\n") {
+    content.text += "\n";
+  }
+  if (content.cursor == content.length) {
+    content.cursor = content.length - 1;
+  }
+  
   var tokens = this.tokenizer.tokenize(content.text);
   var domData = NextEditor.DOM.buildDom(tokens, content.cursor);  
 
   if (domData.cursorOffset != null) {
     this.setEditorContent(domData);    
     this.oldContent = this.editorElement.innerHTML;
-    $(this.inputElement).attr('value', content.text);
+    // Strip the newline off the value.
+    $(this.inputElement).attr('value',
+        content.text.substr(0, content.text.length - 1));
   }
 };
 
