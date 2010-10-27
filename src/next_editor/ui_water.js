@@ -1,11 +1,12 @@
-/** Editor UI for browsers that don't support contentEditable (iPad OS 3.2).
+/** Editor UI for browsers that don't support contentEditable (iOS 3).
  *
- * Constructor args:
- *   editorElement:: div element that displays the formatted text.
- *   inputElement:: textarea for capturing events.
- *   formElement:: for submitting the text message.
+ * The options object should have the following properties:
+ *   inputElement:: textarea for capturing events
+ *   formSubmitter:: used to submit a form when the user presses Enter
+ *   tokenizer:: conforms to the NextEditor.Tokenizer interface for deciding
+ *               which parts of the text get highlighted
  */
-NextEditor.Water = function(editorElement, inputElement, formElement) {
+NextEditor.UI.Water = function(editorElement, inputElement, formElement) {
   var e = this;
 
   /** The DOM element with contentEditable=true. */
@@ -58,18 +59,5 @@ NextEditor.Water = function(editorElement, inputElement, formElement) {
     e.oldContent = text;
   }
   e.contentMayHaveChanged();
-  
-  /** Set to true when an Enter press is intercepted.
-    *
-    * Without this, we tend to submit the same message multiple times.
-    */
-  e.submitted = false;
-
-  /** Called on DOM events indicating the editor's contents may have changed. */
-  e.onChange = function(event) {
-    e.contentMayHaveChanged();
-  }
-  $(e.inputElement).bind('keypress', e.onChange);
-  $(e.inputElement).bind('input', e.onChange);
 }
 
