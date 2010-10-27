@@ -118,7 +118,7 @@ NextEditor.Input.prototype.onFirefoxKey = function(event) {
 NextEditor.Input.prototype.isFocused = false;
 
 /** Called when the editor element receives focus. We poll for changes. */
-NextEditor.Input.prototype.onFocus = function() {
+NextEditor.Input.prototype.onFocus = function(event) {
   event.data.isFocused = true;
   event.data.changeTick();
 };
@@ -135,6 +135,6 @@ NextEditor.Input.prototype.changeTick = function(event) {
 };
 
 /** Notifies the observer that the input field contents might have changed. */
-NextEditor.Input.prototype.notifyChange = function(event) {
+NextEditor.Input.prototype.notifyChange = function() {
   this.observer.onPossibleChange();
 };

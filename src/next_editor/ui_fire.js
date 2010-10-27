@@ -44,14 +44,15 @@ NextEditor.UI.Fire.prototype.buildEditor = function() {
   
   this.editorElement = document.createElement('div');
   this.editorElement.className = inputClass;
-  this.editorElement.contentEditable = "true";
+  $(this.editorElement).attr('contentEditable', 'true');
   $(this.inputElement).before(this.editorElement);
   
   var text = $(this.inputElement).attr('value');
+  var tokens = this.tokenizer.tokenize(text);
   var cursor = (document.activeElement == this.editorElement) ?
                text.length : null;
   
-  var domData = NextEditor.DOM.buildDom(text, text.length);
+  var domData = NextEditor.DOM.buildDom(tokens, text.length);
   this.setEditorContent(domData);
 };
 
@@ -92,7 +93,7 @@ NextEditor.UI.Fire.prototype.setEditorContent = function(domData) {
     range.setStart(node, domData.cursorOffset);
     range.setEnd(node, domData.cursorOffset);
     
-    var selection = document.getSelection();
+    var selection = window.getSelection();
     selection.removeAllRanges();
     selection.addRange(range);  
   }

@@ -66,7 +66,6 @@ NextEditor.Tokenizers.WordTokenizer.prototype.tokenize = function(text) {
   if (wordStart != null) {
     ir.push([wordStart, text.length, null, true]);
   }
-  console.log([ir]);
   
   // Final representation: segmentation, proper types.
   var tokens = [];
