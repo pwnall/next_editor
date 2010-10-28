@@ -43,9 +43,22 @@ NextEditor.UI.Fire.prototype.buildEditor = function() {
   this.inputElement.style.height = 0;
   
   this.editorElement = document.createElement('div');
-  this.editorElement.className = inputClass;
+  this.editorElement.style.width = this.editorElement.style.height = '100%';
+  this.editorElement.style.margin = '0';
+  this.editorElement.style.padding = '0';
+  this.editorElement.style.border = 'none';
   $(this.editorElement).attr('contentEditable', 'true');
-  $(this.inputElement).before(this.editorElement);
+
+  // Workaround Firefox bug that shows resizing and moving controls for
+  // contentEditable=true elements if they have position: absolute.
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=531159  
+  var wrapper = document.createElement('div');
+  wrapper.className = inputClass;
+  $(this.inputElement).before(wrapper);
+  wrapper.appendChild(this.editorElement);
+  if (document.queryCommandEnabled('enableObjectResizing')) {
+    document.execCommand('enableObjectResizing', false, 'false');
+  }
   
   var text = $(this.inputElement).attr('value');
   var tokens = this.tokenizer.tokenize(text + "\n");
