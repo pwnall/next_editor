@@ -19,6 +19,9 @@
   -moz-box-shadow: inset 2px 2px 2px #DEDEFF;
   -webkit-box-shadow: inset 2px 2px 2px #DEDEFF;
   padding: 3px;
+  
+  font-family: Tahoma, sans-serif;
+  font-size: 11pt;
 }
 .testForm input {
   position: absolute;
@@ -31,6 +34,11 @@
   display: inline-block;
   color: #6666FF;
   background-color: #DEDEFF;
+  padding: 0 2px;
+}
+
+.testInput.rigid_editor .word {
+  padding: 0;
 }
 
 .testInput .nonword {

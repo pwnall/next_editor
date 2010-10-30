@@ -33,24 +33,35 @@ NextEditor.UI.Water.prototype.editorElement = null;
 
 /** Constructs the editor DOM UI. */
 NextEditor.UI.Water.prototype.buildEditor = function() {
-  this.editorElement = document.createElement('div');
+  var inputClass = this.inputElement.className;  
+  var wrapper = document.createElement('div');
+  wrapper.className = inputClass + ' rigid_editor';
+  $(this.inputElement).before(wrapper);
   
-  var matching_styles = ['padding', 'margin', 'border-left-width',
-                         'border-right-width', 'border-top-width',
-                         'border-bottom-width',
-                         'height', 'width', 'font-family', 'font-size'];
-  var style_hash = new Array();
-  for (var i = 0; i < matching_styles.length; i++) {
-    style_hash[matching_styles[i]] =
-        $(this.inputElement).css(matching_styles[i]);
-  }
-  $(this.editorElement).css(style_hash);
-  $(this.editorElement).css({'z-index' : -5});
+  this.editorElement = document.createElement('div');
+  this.editorElement.style.position = 'absolute';
+  this.editorElement.style.width = this.editorElement.style.height = '100%';
+  this.editorElement.style.margin = 0;
+  this.editorElement.style.padding = 0;
+  this.editorElement.style.border = 'none';
+  this.editorElement.style.zIndex = -5;
 
-  $(this.inputElement).css({'background-color': 'transparent', 'opacity': 0.0,
-      'visibility': 'visible', 'position': 'absolute', 'left': '4px',
-      'top': '3px'});
-  $(this.inputElement).after(this.editorElement);
+  this.inputElement.className = '';
+  this.inputElement.style.position = 'static';
+  this.inputElement.style.width = this.editorElement.style.height = '100%';
+  this.inputElement.style.margin = 0;
+  this.inputElement.style.padding = 0;
+  this.inputElement.style.border = 'none';
+  this.inputElement.style.zIndex = 0;
+  this.inputElement.style.backgroundColor = 'transparent';
+  this.inputElement.style.color = 'rgba(0, 0, 0, 0)';
+  this.inputElement.style.font = 'inherit';
+  this.inputElement.style.resize = 'none';
+  this.inputElement.style.overflow = 'visible';
+  //this.inputElement.style.opacity = 0;
+
+  $(wrapper).append(this.editorElement);  
+  $(wrapper).append(this.inputElement);
   
   this.onPossibleChange();
 };
