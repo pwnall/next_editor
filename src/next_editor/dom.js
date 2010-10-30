@@ -11,37 +11,34 @@ NextEditor.DOM = { };
  *   text:: a string containing the element's inner text
  *   cursor:: the index of the character that the cursor precedes
  */
-NextEditor.DOM.elementContent = function(element, selection) {
+NextEditor.DOM.elementContent = function (element, selection) {
   var text = '';
   var cursor = null;
   if (element.childNodes && element.childNodes.length > 0) {
-    for (var i = 0; i < element.childNodes.length; i++) {
-      childData = this.elementContent(element.childNodes[i], selection);
-      if (childData.cursor != null) {
+    for (var i = 0; i < element.childNodes.length; i += 1) {
+      var childData = this.elementContent(element.childNodes[i], selection);
+      if (childData.cursor !== null) {
         cursor = text.length + childData.cursor;
       }
-      else if (selection.focusNode == element && selection.focusOffset == i) {
+      else if (selection.focusNode === element && selection.focusOffset === i) {
         cursor = text.length;
       }
       text += childData.text;
     }
   }
   else {
-    if (selection.focusNode == element) {
-      cursor = selection.focusOffset;        
+    if (selection.focusNode === element) {
+      cursor = selection.focusOffset;
     }
     
-    if (element.nodeName == 'BR') {
+    if (element.nodeName === 'BR') {
       text = "\n";
     }
-    else if (element.nodeName == '#text') {
+    else if (element.nodeName === '#text') {
       text = element.textContent;
     }
   }
   
-  //if (element.nodeName == '#text' && text[text.length - 1] == "\n") {
-  //  text = text.substr(0, text.length - 1);
-  //}
   return { text: text, cursor: cursor };
 };
 
@@ -59,23 +56,27 @@ NextEditor.DOM.elementContent = function(element, selection) {
  *                  it; this might be the index of a character in a text node,
  *                  or the index of an element within its containing element
  */
-NextEditor.DOM.buildDom = function(tokens, cursor) {
+NextEditor.DOM.buildDom = function (tokens, cursor) {
   var nodes = [];
   var cursorNode = null;
   var cursorOffset = null;
   
-  if (cursor == null) cursor = -1;  
-  if (cursor == 0) { cursorOffset = 0; }
+  if (cursor === null) {
+    cursor = -1;
+  }
+  if (cursor === 0) {
+    cursorOffset = 0;
+  }
   
-  for (var i = 0; i < tokens.length; i++) {
+  for (var i = 0; i < tokens.length; i += 1) {
     var token = tokens[i];
     var runs = token[2].split("\n");
     var textOffset = token[0];
-    for (var j = 0; j < runs.length; j++) {
+    for (var j = 0; j < runs.length; j += 1) {
       if (j > 0) {
         // Newline.
         var lineBreakNode = document.createElement('br');
-        if (cursor == textOffset) {
+        if (cursor === textOffset) {
           cursorOffset = nodes.length;
         }
         nodes.push(lineBreakNode);
@@ -85,7 +86,7 @@ NextEditor.DOM.buildDom = function(tokens, cursor) {
       // Run of non-newline characters in token.
       var runText = runs[j];      
       var runLength = runText.length;
-      if (runLength == 0) {
+      if (runLength === 0) {
         continue;
       }
       var span = document.createElement('span');
@@ -99,7 +100,7 @@ NextEditor.DOM.buildDom = function(tokens, cursor) {
       }
       textOffset += runLength;
     }
-    if (cursor == textOffset) {
+    if (cursor === textOffset) {
       cursorOffset = nodes.length;
     }
   }

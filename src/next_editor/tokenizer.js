@@ -9,14 +9,20 @@ NextEditor.Tokenizers = {};
  *   highlightedWords: map between words to be highlighted and their token types
  *   useSegmentation: if true, each word is segmented into individual characters
  */
-NextEditor.Tokenizers.WordTokenizer = function(options) {
-  if (options.nonWordType) this.nonWordType = options.nonWordType;
-  if (options.genericWordType) this.genericWordType = options.genericWordType;
+NextEditor.Tokenizers.WordTokenizer = function (options) {
+  if (options.nonWordType) {
+    this.nonWordType = options.nonWordType;
+  }
+  if (options.genericWordType) {
+    this.genericWordType = options.genericWordType;
+  }
   if (options.highlightedWords) {
     this.highlightedWords = options.highlightedWords;
   }
-  if (options.useSegmentation) this.useSegmentation = options.useSegmentation;
-}
+  if (options.useSegmentation) {
+    this.useSegmentation = options.useSegmentation;
+  }
+};
 
 /* Token type for non-word contents */
 NextEditor.Tokenizers.WordTokenizer.prototype.nonWordType = 'nonword';
@@ -26,6 +32,11 @@ NextEditor.Tokenizers.WordTokenizer.prototype.genericWordType = 'word';
 NextEditor.Tokenizers.WordTokenizer.prototype.highlightedWords = {};
 /** True if the "words" need to be further segmented (CJK languages). */
 NextEditor.Tokenizers.WordTokenizer.prototype.useSegmentation = false;
+/** The regular expression used for word characters.*/
+NextEditor.Tokenizers.WordTokenizer.prototype.wordRegexp = new RegExp(
+  "[A-Za-z]|[\u3040-\u309F]|[\u30A0-\u30FF]|" +
+  "[\u4E00-\u9FFF\uF900-\uFAFF\u3400-\u4DBF]"
+);
 
 /** Standard tokenizing function.
  * 
@@ -38,38 +49,43 @@ NextEditor.Tokenizers.WordTokenizer.prototype.useSegmentation = false;
  *   * the token's ending offset in the string
  *   * the CSS class for the token
  */
-NextEditor.Tokenizers.WordTokenizer.prototype.tokenize = function(text) {
+NextEditor.Tokenizers.WordTokenizer.prototype.tokenize = function (text) {
   var ir = [];
   
   // Intermediate Representation: token type = true/false for word/non-word.
   var wordStart = null;
   var nonWordStart = null;
-  for (var i = 0; i < text.length; i++) {
-    if (text[i].match(/[A-Za-z]|[\u3040-\u309F]|[\u30A0-\u30FF]|[\u4E00-\u9FFF\uF900-\uFAFF\u3400-\u4DBF]/)) {
-      if (nonWordStart != null) {
+  var regexp = this.wordRegexp;
+  for (var i = 0; i < text.length; i += 1) {
+    if (text[i].match(regexp)) {
+      if (nonWordStart !== null) {
         ir.push([nonWordStart, i, null, false]);
         nonWordStart = null;
       }
-      if (wordStart == null) wordStart = i;
+      if (wordStart === null) {
+        wordStart = i;
+      }
     }
     else {
-      if (wordStart != null) {
+      if (wordStart !== null) {
         ir.push([wordStart, i, null, true]);
         wordStart = null;
       }
-      if (nonWordStart == null) nonWordStart = i;
+      if (nonWordStart === null) {
+        nonWordStart = i;
+      }
     }
   }
-  if (nonWordStart != null) {
+  if (nonWordStart !== null) {
     ir.push([nonWordStart, text.length, null, false]);
   }
-  if (wordStart != null) {
+  if (wordStart !== null) {
     ir.push([wordStart, text.length, null, true]);
   }
   
   // Final representation: segmentation, proper types.
   var tokens = [];
-  for (var i = 0; i < ir.length; i++) {
+  for (i = 0; i < ir.length; i += 1) {
     var token = ir[i];
     token[1] -= token[0];
     if (!token[3]) {
@@ -79,14 +95,10 @@ NextEditor.Tokenizers.WordTokenizer.prototype.tokenize = function(text) {
       continue;
     }
     
-    if(this.useSegmentation) {
-      var segments = this.segmentToken(i, tokens, text);
-    }
-    else {
-      var segments = [token[1]];
-    }
+    var segments = (this.useSegmentation) ? this.segmentToken(i, tokens, text) :
+                                            [token[1]];
     var tokenStart = token[0];
-    for (var j = 0; j < segments.length; j++) {
+    for (var j = 0; j < segments.length; j += 1) {
       var segmentLength = segments[j];
       var segmentText = text.substr(tokenStart, segmentLength);
       var tokenType = this.highlightedWords[segmentText] ||
@@ -110,11 +122,11 @@ NextEditor.Tokenizers.WordTokenizer.prototype.tokenize = function(text) {
  * length.
  */
 NextEditor.Tokenizers.WordTokenizer.prototype.segmentText =
-    function(tokenIndex, tokens, text) {
+    function (tokenIndex, tokens, text) {
   var token = tokens[tokenIndex];
   var tokenLength = token[1];
   var segments = new Array(tokenLength);
-  for (var i = 0; i < tokenLength; i++) {
+  for (var i = 0; i < tokenLength; i += 1) {
     segments[i] = 1;
   }
   return segments;

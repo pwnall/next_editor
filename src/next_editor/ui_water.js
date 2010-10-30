@@ -6,15 +6,19 @@
  *   tokenizer:: conforms to the NextEditor.Tokenizer interface for deciding
  *               which parts of the text get highlighted
  */
-NextEditor.UI.Water = function(options) {
+NextEditor.UI.Water = function (options) {
   this.inputElement = options.inputElement;
   if (!this.inputElement) {
-    window.console && console.error("No input elment given! noop");
+    if (window.console) {
+      window.console.error("No input elment given! noop");
+    }
     return;
   }
   this.tokenizer = options.tokenizer; 
   if (!this.tokenizer) {
-    window.console && console.error("No tokenizer given! noop");
+    if (window.console) {
+      window.console.error("No tokenizer given! noop");
+    }
     return;
   }
   
@@ -32,7 +36,7 @@ NextEditor.UI.Water.prototype.formElement = null;
 NextEditor.UI.Water.prototype.editorElement = null;
 
 /** Constructs the editor DOM UI. */
-NextEditor.UI.Water.prototype.buildEditor = function() {
+NextEditor.UI.Water.prototype.buildEditor = function () {
   var inputClass = this.inputElement.className;  
   var wrapper = document.createElement('div');
   wrapper.className = inputClass + ' rigid_editor';
@@ -70,9 +74,11 @@ NextEditor.UI.Water.prototype.buildEditor = function() {
 NextEditor.UI.Water.prototype.oldContent = null;
 
 /** Parses the editor content to make it nice, only if it changed. */
-NextEditor.UI.Water.prototype.onPossibleChange = function() {
+NextEditor.UI.Water.prototype.onPossibleChange = function () {
   var text = $(this.inputElement).attr('value');
-  if (this.oldContent == text) return;
+  if (this.oldContent === text) {
+    return;
+  }
     
   var tokens = this.tokenizer.tokenize(text);
   var domData = NextEditor.DOM.buildDom(tokens, null);  
@@ -86,24 +92,24 @@ NextEditor.UI.Water.prototype.onPossibleChange = function() {
  * Args:
  *   domData:: the new DOM contents and selection information for the editor UI
  */
-NextEditor.UI.Water.prototype.setEditorContent = function(domData) {  
+NextEditor.UI.Water.prototype.setEditorContent = function (domData) {  
   this.editorElement.innerHTML = '';
-  for (var i = 0; i < domData.nodes.length; i++) {
+  for (var i = 0; i < domData.nodes.length; i += 1) {
     this.editorElement.appendChild(domData.nodes[i]);
   }
 };
 
 /** Submits the editor's form if the user presses Enter. */
-NextEditor.UI.Water.prototype.onSubmitKey = function() {
+NextEditor.UI.Water.prototype.onSubmitKey = function () {
   this.formSubmitter.submit();
 };
 
 /** The DOM element receiving user input events. */
-NextEditor.UI.Water.prototype.eventSource = function() {
+NextEditor.UI.Water.prototype.eventSource = function () {
   return this.inputElement;
-}
+};
 
 /** True if no change events should be generated when an IME UI is active. */
-NextEditor.UI.Water.prototype.needsImeSupport = function() {
+NextEditor.UI.Water.prototype.needsImeSupport = function () {
   return true;
-}
+};

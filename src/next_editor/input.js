@@ -15,16 +15,20 @@
  *                      will definitely be called when a change occurs (no false
  *                      negatives)
  */
-NextEditor.Input = function(options) {
+NextEditor.Input = function (options) {
   this.observer = options.observer;
   if (!this.observer) {
-    window.console && console.error("No observer given! noop");
+    if (window.console) {
+      window.console.error("No observer given! noop");
+    }
     return;
   }
 
   var eventSource = options.eventSource;
   if (!eventSource) {
-    window.console && console.error("No eventSource given! noop");
+    if (window.console) {
+      window.console.error("No eventSource given! noop");
+    }
     return;
   }
 
@@ -48,7 +52,7 @@ NextEditor.Input = function(options) {
     $(eventSource).bind('blur', this, this.onBlur);
 
     this.isFocused =
-        document.hasFocus() && document.activeElement == eventSource;
+        document.hasFocus() && document.activeElement === eventSource;
     if (this.isFocused) {
       this.changeTick();
     }
@@ -56,12 +60,17 @@ NextEditor.Input = function(options) {
 };
 
 /** Creates unbound versions of some methods, with minimum closure overhead. */
-NextEditor.Input.prototype.createUnboundFunctions = function() {
+NextEditor.Input.prototype.createUnboundFunctions = function () {
   var context = this;
-  this.unboundChangeTick = function() { context.changeTick(); };
-  this.unboundNotifyChange = function() { context.notifyChange(); };
-  this.delayedNotifyChange =
-      function() { setTimeout(this.unboundNotifyChange, 10); };
+  this.unboundChangeTick = function () {
+    context.changeTick();
+  };
+  this.unboundNotifyChange = function () {
+    context.notifyChange();
+  };
+  this.delayedNotifyChange = function () {
+    setTimeout(this.unboundNotifyChange, 10);
+  };
 };
 
 /** True when an IME UI is displayed to help the user select characters. */
@@ -72,7 +81,7 @@ NextEditor.Input.prototype.imeCompositionInProgress = false;
  * We won't change the editor's DOM while the IME UI is messing with the
  * input, because that throws off the IME UI.
  */
-NextEditor.Input.prototype.onIMECompositionStart = function(event) {
+NextEditor.Input.prototype.onIMECompositionStart = function (event) {
   event.data.imeCompositionInProgress = true;
   return true;
 };
@@ -82,15 +91,15 @@ NextEditor.Input.prototype.onIMECompositionStart = function(event) {
  * We won't change the editor's DOM while IME input is happening, because that
  * throws off the IME editors.
  */
-NextEditor.Input.prototype.onIMECompositionEnd = function(event) {
+NextEditor.Input.prototype.onIMECompositionEnd = function (event) {
   event.data.imeCompositionInProgress = false;
   event.data.delayedNotifyChange();
   return true;
 };
 
 /** Fires the submission callback when the user presses Enter. */
-NextEditor.Input.prototype.onKeyDown = function(event) {
-  if (event.which == 13) {
+NextEditor.Input.prototype.onKeyDown = function (event) {
+  if (event.which === 13) {
     event.preventDefault();
     event.data.observer.onSubmitKey();
     return false;
@@ -99,7 +108,7 @@ NextEditor.Input.prototype.onKeyDown = function(event) {
 };
 
 /** Called on textInput events, for browsers that do DOM 3 events. */
-NextEditor.Input.prototype.onTextInput = function(event) {
+NextEditor.Input.prototype.onTextInput = function (event) {
   event.data.delayedNotifyChange();
   return true;
 };
@@ -108,7 +117,7 @@ NextEditor.Input.prototype.onTextInput = function(event) {
  * 
  * This never happens while an IME interface is active.
  */
-NextEditor.Input.prototype.onFirefoxKey = function(event) {
+NextEditor.Input.prototype.onFirefoxKey = function (event) {
   event.data.onFirefoxTextImeMode = false;
   event.data.delayedNotifyChange();
   return true;
@@ -118,25 +127,28 @@ NextEditor.Input.prototype.onFirefoxKey = function(event) {
 NextEditor.Input.prototype.isFocused = false;
 
 /** Called when the editor element receives focus. We poll for changes. */
-NextEditor.Input.prototype.onFocus = function(event) {
+NextEditor.Input.prototype.onFocus = function (event) {
   event.data.isFocused = true;
   event.data.changeTick();
 };
 
 /** Called when the editor element loses focus. */
-NextEditor.Input.prototype.onBlur = function(event) {
+NextEditor.Input.prototype.onBlur = function (event) {
   event.data.isFocused = false;
 };
 
 /** While the editor element has focus, check for changes every 100ms. */
-NextEditor.Input.prototype.changeTick = function(event) {
+NextEditor.Input.prototype.changeTick = function (event) {
   this.notifyChange(event);
-  if (this.isFocused) setTimeout(this.unboundChangeTick, 100);
+  if (this.isFocused) {
+    setTimeout(this.unboundChangeTick, 100);
+  }
 };
 
 /** Notifies the observer that the input field contents might have changed. */
-NextEditor.Input.prototype.notifyChange = function() {
-  if (this.imeCompositionInProgress)
+NextEditor.Input.prototype.notifyChange = function () {
+  if (this.imeCompositionInProgress) {
     return;
+  }
   this.observer.onPossibleChange();
 };

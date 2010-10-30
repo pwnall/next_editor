@@ -1,8 +1,10 @@
 /** Facilitates the submission of a form element. */
-NextEditor.Submitter = function(formElement) {
+NextEditor.Submitter = function (formElement) {
   this.formElement = formElement;
   if (!this.formElement) {
-    window.console && console.error("No form element given! noop");
+    if (window.console) {
+      window.console.error("No form element given! noop");
+    }
     return;
   }
 };
@@ -20,7 +22,7 @@ NextEditor.Submitter.prototype.submitted = false;
  *
  * The method also makes sure that the form is only submitted once.
  */
-NextEditor.Submitter.prototype.submit = function() {
+NextEditor.Submitter.prototype.submit = function () {
   if (this.submitted) {
     return;
   }  
@@ -34,9 +36,9 @@ NextEditor.Submitter.prototype.submit = function() {
 
   var data = el.is('form') ? el.serializeArray() : [];
   $.ajax({
-      url: url,
-      data: data,
-      dataType: dataType,
-      type: method.toUpperCase(),
+    url: url,
+    data: data,
+    dataType: dataType,
+    type: method.toUpperCase()
   });
 };

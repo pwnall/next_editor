@@ -2,8 +2,11 @@
  * Copyright 2010 Victor Costan and Ying Yin. MIT License.
  */
 
+/*jslint white: true, maxlen: 80, indent: 2, onevar: false */
+/*global document, window, navigator, setTimeout, $ */
+
 /** Namespace for the NextLang syntax-highlighting editor. */
-NextEditor = {};
+var NextEditor = {};
  
 /** Constructs a syntax-highlighting editor.
  *
@@ -15,26 +18,22 @@ NextEditor = {};
  *                debugging the rigid CSS, or the Water itself
  *   tokenizer:: decies who 
  */
-NextEditor.create = function(options) {
+NextEditor.create = function (options) {
   var formElement = options.formElement;
-  if (formElement) {
-    var formSubmitter = new NextEditor.Submitter(formElement);   
-  }
-  else {
-    var formSubmitter = null;
-  }
+  var formSubmitter = (formElement) ? (new NextEditor.Submitter(formElement)) :
+                                      null;
     
   var tokenizer = options.tokenizer;
   if (!tokenizer) {
     tokenizer = new NextEditor.Tokenizers.WordTokenizer({});
   }
   
-  var klass = NextEditor.UI.editorClass(options.forceWater);
-  var editorUI = new klass({
+  var UIClass = NextEditor.UI.editorClass(options.forceWater);
+  var editorUI = new UIClass({
     inputElement: options.inputElement,
     formSubmitter: formSubmitter,
     tokenizer: tokenizer
-  });  
+  });
   
   var inputController = new NextEditor.Input({
     eventSource: editorUI.eventSource(),
