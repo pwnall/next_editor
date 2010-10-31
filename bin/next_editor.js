@@ -149,9 +149,9 @@ NextEditor.DOM.buildDom = function (tokens, cursor) {
       var spanText = document.createTextNode(runText);
       span.appendChild(spanText);
       span.className = token[3];
-      nodes.push(span);      
+      nodes.push(span);
       if (cursor > textOffset && cursor < textOffset + runLength) {
-        cursorNode = span;
+        cursorNode = spanText;
         cursorOffset = cursor - textOffset;
       }
       textOffset += runLength;
@@ -589,9 +589,6 @@ NextEditor.UI.Fire.prototype.buildEditor = function () {
   wrapper.className = inputClass;
   $(this.inputElement).before(wrapper);
   wrapper.appendChild(this.editorElement);
-  if (document.queryCommandEnabled('enableObjectResizing')) {
-    document.execCommand('enableObjectResizing', false, 'false');
-  }
   
   var text = $(this.inputElement).attr('value');
   var tokens = this.tokenizer.tokenize(text + "\n");
