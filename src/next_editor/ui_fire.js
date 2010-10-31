@@ -64,7 +64,8 @@ NextEditor.UI.Fire.prototype.buildEditor = function () {
   var wrapper = document.createElement('div');
   wrapper.className = inputClass;
   $(this.inputElement).before(wrapper);
-  wrapper.appendChild(this.editorElement);
+  $(wrapper).append(this.editorElement);
+  $(wrapper).append(this.inputElement);
   
   var text = $(this.inputElement).attr('value');
   var tokens = this.tokenizer.tokenize(text + "\n");
