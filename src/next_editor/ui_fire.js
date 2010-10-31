@@ -45,6 +45,11 @@ NextEditor.UI.Fire.prototype.buildEditor = function () {
   this.inputElement.style.position = 'absolute';
   this.inputElement.style.width = 0;
   this.inputElement.style.height = 0;
+  this.inputElement.style.margin = 0;
+  this.inputElement.style.padding = 0;
+  this.inputElement.style.border = 'none';
+  this.inputElement.style.left = 0;
+  this.inputElement.style.top = 0;
   
   this.editorElement = document.createElement('div');
   this.editorElement.style.width = this.editorElement.style.height = '100%';

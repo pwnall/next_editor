@@ -9,7 +9,7 @@ end
 
 # Production binary.
 file 'bin/next_editor.min.js' => 'bin/next_editor.js' do
-  Kernel.system 'juicer merge bin/next_editor.js'
+  Kernel.system 'juicer merge --force bin/next_editor.js'
 end
 
 # Build everything by default.
