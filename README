@@ -9,10 +9,110 @@ that are traditionally used for input. NextEditor implements syntax highlighting
 by tagging spans with classes, so it can use any highlighting style that can be
 expressed in CSS. 
 
+
+SUPPORTED BROWSERS
+
+NextEditor has been tested and works against the following browsers:
+* Chromium / Google Chrome 6.0+
+* Firefox 3.6+
+* Mobile Safari in iOS 3+
+* Internet Explorer 9
+
+Please contact the authors if you can confirm that NextEditor works on a
+browser that is not mentioned here. Patches for extending compatibility are
+always welcome.
+
+
+USAGE
+
+If you prefer hacking on code with Firebug instead of reading documentation,
+test/index.html sets a scaffold that you can poke around.
+
+bin/next_editor.min.js is minified and intended for production usage. If you
+need to debug NextEditor, or if you prefer using your own minifier, you can use
+the uncompressed version at bin/next_editor.js instead. The current version of
+NextEditor requires jQuery, and assumes that it is aliased as $. Patches that
+remove these assumptions are welcome.
+
+In the simplest instantiation, NextEditor takes a textarea or input DOM element
+and turns it into a text editor.
+
+    var input = document.getElementById('message_text');
+    NextEditor.create({ inputElement: input });
+
+NextEditor assumes that you rely on CSS to position and style your editor. It
+will remove the class attribute of the given DOM element, and apply it against
+the top-level element responsible for the editor's appearance. To ensure that
+this works:
+* Never use inline styles.
+* The CSS class for the element should fully specify the placement (width,
+height, margin, border, padding) and font (font-family, font-size) of the
+editor. Do not rely on browser defaults.
+
+Syntax highlighting is implemented by wrapping tokens in spans, and assigning
+various class names to the spans. The tokenizer (covered later) decides which
+text segments get what class names. Your CSS should implement the syntax
+highlighting styling as follows.
+
+   .message_text_class span { display: inline-block; }
+   .message_text_class .word { color: blue; }
+   .message_text_class .non_word { color: #666666; }
+
 On modern browsers, NextEditor uses the HTML5 contentEditable attribute for rich
 text inputs, and re-formats the DOM inside the editor on every change. This
 allows full flexibility in the syntax highlighting CSS. On older browsers, a div
 is overlaid right on top of a textarea, so the syntax highlighting CSS cannot
 change the width of characters. For example, the highlighting spans must have
 padding-left and padding-right set to 0, and the same font-family and font-size
-as un-highlighted text. 
+as un-highlighted text. To help you implement these restrictions, NextEditor
+adds the rigid_editor class to the editor's top-level DOM element, and you can
+use it in your CSS as follows.
+
+    .message_text_class.rigid_editor span { padding: 0; }
+
+By default, NextEditor implements a multi-line editor. However, it can be
+configured to submit a form when the user presses the Enter key.
+
+    var input = document.getElementById('message_text');
+    var form = document.getElementById('message_form');
+    NextEditor.create({ inputElement: input, formElement: form });
+
+The syntax highlighting logic is decoupled from the rest of the code, and you
+will most likely implement your own tokenizer. A tokenizer object must have a
+method called tokenize, which takes the text to be tokenized and returns an
+array of tokens, where each token is a 4-element array following the pattern
+[start_position, length, token_text, span_class]. The broken example below
+illustrates the point.
+
+   var Tokenizer = {
+     tokenize: function (text) {
+       return [[0, 3, 'The', 'word'], [3, 1, ' ', 'non_word'],
+           [4, 5, 'white', 'word'], [3, 1, ' ', 'non_word'],
+           [4, 5, 'fox', 'word']];
+     }
+   };
+
+NextEditor.create can take a custom tokenizer as an argument.
+
+    var input = document.getElementById('message_text');
+    NextEditor.create({ inputElement: input, tokenizer: Tokenizer });
+
+
+BUILDING
+
+NextEditor requires RubyGems and Juicer, with the YUI Compressor and JSLint
+extensions. Once dependencies are installed, the following command will build
+both the development and production versions of the library. 
+
+    rake
+
+RubyGems is available at http://rubygems.org/ and Juicer is available at
+http://cjohansen.no/en/ruby/juicer_a_css_and_javascript_packaging_tool
+
+
+TESTING
+
+Testing is done manually. Patches for automated testing are welcome. While
+developing a change, use test/index.html to verify that the editor still works
+as intended. When done with your change, do a build and use test/prod.html to
+ensure that the minified version of NextEditor works as well.
