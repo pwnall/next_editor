@@ -65,9 +65,6 @@ NextEditor.UI.Fire.prototype.buildEditor = function () {
   wrapper.className = inputClass;
   $(this.inputElement).before(wrapper);
   wrapper.appendChild(this.editorElement);
-  if (document.queryCommandEnabled('enableObjectResizing')) {
-    document.execCommand('enableObjectResizing', false, 'false');
-  }
   
   var text = $(this.inputElement).attr('value');
   var tokens = this.tokenizer.tokenize(text + "\n");

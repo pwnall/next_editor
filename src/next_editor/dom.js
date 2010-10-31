@@ -93,9 +93,9 @@ NextEditor.DOM.buildDom = function (tokens, cursor) {
       var spanText = document.createTextNode(runText);
       span.appendChild(spanText);
       span.className = token[3];
-      nodes.push(span);      
+      nodes.push(span);
       if (cursor > textOffset && cursor < textOffset + runLength) {
-        cursorNode = span;
+        cursorNode = spanText;
         cursorOffset = cursor - textOffset;
       }
       textOffset += runLength;
