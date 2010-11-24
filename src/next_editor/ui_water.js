@@ -49,10 +49,12 @@ NextEditor.UI.Water.prototype.buildEditor = function () {
   this.editorElement.style.padding = 0;
   this.editorElement.style.border = 'none';
   this.editorElement.style.zIndex = -5;
+  this.editorElement.style.resize = 'none';
+  this.editorElement.style.overflow = 'hidden';
 
   this.inputElement.className = '';
-  this.inputElement.style.position = 'static';
-  this.inputElement.style.width = this.editorElement.style.height = '100%';
+  this.inputElement.style.position = 'absolute';
+  this.inputElement.style.width = this.inputElement.style.height = '100%';
   this.inputElement.style.margin = 0;
   this.inputElement.style.padding = 0;
   this.inputElement.style.border = 'none';
@@ -61,7 +63,7 @@ NextEditor.UI.Water.prototype.buildEditor = function () {
   this.inputElement.style.color = 'rgba(0, 0, 0, 0)';
   this.inputElement.style.font = 'inherit';
   this.inputElement.style.resize = 'none';
-  this.inputElement.style.overflow = 'visible';
+  this.inputElement.style.overflow = 'hidden';
   //this.inputElement.style.opacity = 0;
 
   $(wrapper).append(this.editorElement);  
@@ -111,5 +113,5 @@ NextEditor.UI.Water.prototype.eventSource = function () {
 
 /** True if no change events should be generated when an IME UI is active. */
 NextEditor.UI.Water.prototype.needsImeSupport = function () {
-  return true;
+  return false;
 };

@@ -202,13 +202,14 @@ NextEditor.Input = function (options) {
   if (options.imeSupport) {
     $(eventSource).bind('compositionstart', this, this.onIMECompositionStart);  
     $(eventSource).bind('compositionend', this, this.onIMECompositionEnd);
-  }  
+  }
   if (!options.multiLine) {
     $(eventSource).bind('keydown', this, this.onKeyDown);
   }
 
   if (NextEditor.Support.hasTextInput()) {
     $(eventSource).bind('textInput', this, this.onTextInput);
+    $(eventSource).bind('keyup', this, this.onModernKey);  
   }
   else {
     // Firefox doesn't have a uniform "textInput" event.
@@ -283,7 +284,16 @@ NextEditor.Input.prototype.onTextInput = function (event) {
  * This never happens while an IME interface is active.
  */
 NextEditor.Input.prototype.onFirefoxKey = function (event) {
-  event.data.onFirefoxTextImeMode = false;
+  event.data.imeCompositionInProgress = false;
+  event.data.delayedNotifyChange();
+  return true;
+};
+
+/** Called in standards-compliant browsers when key presses are detected.
+ * 
+ * This catches the user pressing backspace, tab, and stuff like that.
+ */
+NextEditor.Input.prototype.onModernKey = function (event) {
   event.data.delayedNotifyChange();
   return true;
 };
@@ -302,11 +312,11 @@ NextEditor.Input.prototype.onBlur = function (event) {
   event.data.isFocused = false;
 };
 
-/** While the editor element has focus, check for changes every 100ms. */
+/** While the editor element has focus, check for changes every 20ms. */
 NextEditor.Input.prototype.changeTick = function (event) {
   this.notifyChange(event);
   if (this.isFocused) {
-    setTimeout(this.unboundChangeTick, 100);
+    setTimeout(this.unboundChangeTick, 20);
   }
 };
 
@@ -376,10 +386,10 @@ NextEditor.Support.hasTextInput = function () {
 NextEditor.Support.hasContentEditable = function () {
   var probe = document.createElement('div');
   if (typeof(probe.contentEditable) === 'string') {
-    // HACK: Safari in iOS3 falsely claims that it supports contentEditable
+    // HACK: WebKit in iOS and Android falsely claims that it supports
+    //       contentEditable
     var ua = navigator.userAgent;
-    if ((ua.indexOf("iPod;") >= 0 || ua.indexOf("iPad;")  >= 0) &&
-        ua.indexOf("OS 3") >= 0) {
+    if (ua.indexOf("Mobile") >= 0 && ua.indexOf("Safari")  >= 0) {
       return false;
     }
     
@@ -722,10 +732,12 @@ NextEditor.UI.Water.prototype.buildEditor = function () {
   this.editorElement.style.padding = 0;
   this.editorElement.style.border = 'none';
   this.editorElement.style.zIndex = -5;
+  this.editorElement.style.resize = 'none';
+  this.editorElement.style.overflow = 'hidden';
 
   this.inputElement.className = '';
-  this.inputElement.style.position = 'static';
-  this.inputElement.style.width = this.editorElement.style.height = '100%';
+  this.inputElement.style.position = 'absolute';
+  this.inputElement.style.width = this.inputElement.style.height = '100%';
   this.inputElement.style.margin = 0;
   this.inputElement.style.padding = 0;
   this.inputElement.style.border = 'none';
@@ -734,7 +746,7 @@ NextEditor.UI.Water.prototype.buildEditor = function () {
   this.inputElement.style.color = 'rgba(0, 0, 0, 0)';
   this.inputElement.style.font = 'inherit';
   this.inputElement.style.resize = 'none';
-  this.inputElement.style.overflow = 'visible';
+  this.inputElement.style.overflow = 'hidden';
   //this.inputElement.style.opacity = 0;
 
   $(wrapper).append(this.editorElement);  
@@ -784,5 +796,5 @@ NextEditor.UI.Water.prototype.eventSource = function () {
 
 /** True if no change events should be generated when an IME UI is active. */
 NextEditor.UI.Water.prototype.needsImeSupport = function () {
-  return true;
+  return false;
 };

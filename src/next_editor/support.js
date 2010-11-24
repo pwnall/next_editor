@@ -13,10 +13,10 @@ NextEditor.Support.hasTextInput = function () {
 NextEditor.Support.hasContentEditable = function () {
   var probe = document.createElement('div');
   if (typeof(probe.contentEditable) === 'string') {
-    // HACK: Safari in iOS3 falsely claims that it supports contentEditable
+    // HACK: WebKit in iOS and Android falsely claims that it supports
+    //       contentEditable
     var ua = navigator.userAgent;
-    if ((ua.indexOf("iPod;") >= 0 || ua.indexOf("iPad;")  >= 0) &&
-        ua.indexOf("OS 3") >= 0) {
+    if (ua.indexOf("Mobile") >= 0 && ua.indexOf("Safari")  >= 0) {
       return false;
     }
     

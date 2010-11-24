@@ -10,7 +10,11 @@ by tagging spans with classes, so it can use any highlighting style that can be
 expressed in CSS. 
 
 
-SUPPORTED BROWSERS
+REQUIREMENTS
+
+The NextEditor implementation relies on jQuery 1.4.3+ for convenience. It
+shouldn't be too difficult to remove this requirement if necessary. Patches for
+this would be welcome.
 
 NextEditor has been tested and works against the following browsers:
 * Chromium / Google Chrome 6.0+

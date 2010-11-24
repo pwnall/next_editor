@@ -37,13 +37,14 @@ NextEditor.Input = function (options) {
   if (options.imeSupport) {
     $(eventSource).bind('compositionstart', this, this.onIMECompositionStart);  
     $(eventSource).bind('compositionend', this, this.onIMECompositionEnd);
-  }  
+  }
   if (!options.multiLine) {
     $(eventSource).bind('keydown', this, this.onKeyDown);
   }
 
   if (NextEditor.Support.hasTextInput()) {
     $(eventSource).bind('textInput', this, this.onTextInput);
+    $(eventSource).bind('keyup', this, this.onModernKey);  
   }
   else {
     // Firefox doesn't have a uniform "textInput" event.
@@ -118,7 +119,16 @@ NextEditor.Input.prototype.onTextInput = function (event) {
  * This never happens while an IME interface is active.
  */
 NextEditor.Input.prototype.onFirefoxKey = function (event) {
-  event.data.onFirefoxTextImeMode = false;
+  event.data.imeCompositionInProgress = false;
+  event.data.delayedNotifyChange();
+  return true;
+};
+
+/** Called in standards-compliant browsers when key presses are detected.
+ * 
+ * This catches the user pressing backspace, tab, and stuff like that.
+ */
+NextEditor.Input.prototype.onModernKey = function (event) {
   event.data.delayedNotifyChange();
   return true;
 };
@@ -137,11 +147,11 @@ NextEditor.Input.prototype.onBlur = function (event) {
   event.data.isFocused = false;
 };
 
-/** While the editor element has focus, check for changes every 100ms. */
+/** While the editor element has focus, check for changes every 20ms. */
 NextEditor.Input.prototype.changeTick = function (event) {
   this.notifyChange(event);
   if (this.isFocused) {
-    setTimeout(this.unboundChangeTick, 100);
+    setTimeout(this.unboundChangeTick, 20);
   }
 };
 
