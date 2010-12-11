@@ -95,7 +95,7 @@ NextEditor.Tokenizers.WordTokenizer.prototype.tokenize = function (text) {
       continue;
     }
     
-    var segments = (this.useSegmentation) ? this.segmentToken(i, tokens, text) :
+    var segments = (this.useSegmentation) ? this.segmentToken(i, ir, text) :
                                             [token[1]];
     var tokenStart = token[0];
     for (var j = 0; j < segments.length; j += 1) {
@@ -115,13 +115,13 @@ NextEditor.Tokenizers.WordTokenizer.prototype.tokenize = function (text) {
  * 
  * Args:
  *   tokenIndex:: the offset of the token to be segmented, in the tokens array
- *   tokens:: under-construction array of tokens produced by tokenize
+ *   tokens:: array of tokens produced by tokenize (intermediate representation)
  *   text:: a String representing the text that the token belongs to
  * 
  * Returns an array of segment lengths. The lengths must sum up to the token
  * length.
  */
-NextEditor.Tokenizers.WordTokenizer.prototype.segmentText =
+NextEditor.Tokenizers.WordTokenizer.prototype.segmentToken =
     function (tokenIndex, tokens, text) {
   var token = tokens[tokenIndex];
   var tokenLength = token[1];
