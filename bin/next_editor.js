@@ -234,9 +234,11 @@ NextEditor.Input.prototype.createUnboundFunctions = function () {
   this.unboundNotifyChange = function () {
     context.notifyChange();
   };
-  this.delayedNotifyChange = function () {
-    setTimeout(this.unboundNotifyChange, 10);
-  };
+};
+
+/** Issues a change notification after some time, so UI changes can  sink in. */
+NextEditor.Input.prototype.delayedNotifyChange = function () {
+  setTimeout(this.unboundNotifyChange, 10);  
 };
 
 /** True when an IME UI is displayed to help the user select characters. */
