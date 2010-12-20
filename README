@@ -120,3 +120,9 @@ Testing is done manually. Patches for automated testing are welcome. While
 developing a change, use test/index.html to verify that the editor still works
 as intended. When done with your change, do a build and use test/prod.html to
 ensure that the minified version of NextEditor works as well.
+
+Most of the time, using file:// URLs will do the trick. For the few times when
+it won't, the following command will start a HTTP server that you can access at
+http://localhost:3000/test/index.html
+
+   rake server

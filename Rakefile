@@ -14,3 +14,12 @@ end
 
 # Build everything by default.
 task :default => 'bin/next_editor.min.js'
+
+task :server do
+  require 'rubygems'
+  require 'webrick'
+  
+  server = WEBrick::HTTPServer.new :Port => 3000, :DocumentRoot => '.'
+  ['INT', 'TERM'].each { |signal| trap(signal) { server.shutdown } }
+  server.start
+end
