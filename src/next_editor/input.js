@@ -35,22 +35,24 @@ NextEditor.Input = function (options) {
   this.createUnboundFunctions();
   
   if (options.imeSupport) {
-    $(eventSource).bind('compositionstart', this, this.onIMECompositionStart);  
-    $(eventSource).bind('compositionend', this, this.onIMECompositionEnd);
+    eventSource.addEventListener('compositionstart',
+                                 this.unboundOnIMECompositionStart, false);
+    eventSource.addEventListener('compositionend',
+                                 this.unboundOnIMECompositionEnd, false);
   }
   if (!options.multiLine) {
-    $(eventSource).bind('keydown', this, this.onKeyDown);
+    eventSource.addEventListener('keydown', this.unboundOnKeyDown, false);
   }
 
   if (NextEditor.Support.hasTextInput()) {
-    $(eventSource).bind('textInput', this, this.onTextInput);
-    $(eventSource).bind('keyup', this, this.onModernKey);  
+    eventSource.addEventListener('textInput', this.unboundOnTextInput, false);
+    eventSource.addEventListener('keyup', this.unboundOnModernKey, false);
   }
   else {
     // Firefox doesn't have a uniform "textInput" event.
-    $(eventSource).bind('keyup', this, this.onFirefoxKey);
-    $(eventSource).bind('focus', this, this.onFocus);
-    $(eventSource).bind('blur', this, this.onBlur);
+    eventSource.addEventListener('keyup', this.unboundOnFirefoxKey, false);
+    eventSource.addEventListener('focus', this.unboundOnFocus, false);
+    eventSource.addEventListener('blur', this.unboundOnBlur, false);
 
     this.isFocused =
         document.hasFocus() && document.activeElement === eventSource;
@@ -68,6 +70,30 @@ NextEditor.Input.prototype.createUnboundFunctions = function () {
   };
   this.unboundNotifyChange = function () {
     context.notifyChange();
+  };
+  this.unboundOnIMECompositionStart = function (event) {
+    context.onIMECompositionStart(event);
+  };
+  this.unboundOnIMECompositionEnd = function (event) {
+    context.onIMECompositionEnd(event);
+  };
+  this.unboundOnKeyDown = function (event) {
+    context.onKeyDown(event);
+  };
+  this.unboundOnTextInput = function (event) {
+    context.onTextInput();
+  };
+  this.unboundOnModernKey = function (event) {
+    context.onFirefoxKey(event);
+  };
+  this.unboundOnFirefoxKey = function (event) {
+    context.onFirefoxKey(event);
+  };
+  this.unboundOnFocus = function (event) {
+    context.onFocus(event);
+  };
+  this.unboundOnBlur = function (event) {
+    context.onBlur(event);
   };
 };
 
@@ -104,7 +130,7 @@ NextEditor.Input.prototype.onIMECompositionEnd = function (event) {
 NextEditor.Input.prototype.onKeyDown = function (event) {
   if (event.which === 13) {
     event.preventDefault();
-    event.data.observer.onSubmitKey();
+    this.onSubmitKey();
     return false;
   }
   return true;
@@ -112,7 +138,7 @@ NextEditor.Input.prototype.onKeyDown = function (event) {
 
 /** Called on textInput events, for browsers that do DOM 3 events. */
 NextEditor.Input.prototype.onTextInput = function (event) {
-  event.data.delayedNotifyChange();
+  this.delayedNotifyChange();
   return true;
 };
 
@@ -121,8 +147,8 @@ NextEditor.Input.prototype.onTextInput = function (event) {
  * This never happens while an IME interface is active.
  */
 NextEditor.Input.prototype.onFirefoxKey = function (event) {
-  event.data.imeCompositionInProgress = false;
-  event.data.delayedNotifyChange();
+  this.imeCompositionInProgress = false;
+  this.delayedNotifyChange();
   return true;
 };
 
@@ -131,7 +157,7 @@ NextEditor.Input.prototype.onFirefoxKey = function (event) {
  * This catches the user pressing backspace, tab, and stuff like that.
  */
 NextEditor.Input.prototype.onModernKey = function (event) {
-  event.data.delayedNotifyChange();
+  this.delayedNotifyChange();
   return true;
 };
 
@@ -140,13 +166,13 @@ NextEditor.Input.prototype.isFocused = false;
 
 /** Called when the editor element receives focus. We poll for changes. */
 NextEditor.Input.prototype.onFocus = function (event) {
-  event.data.isFocused = true;
-  event.data.changeTick();
+  this.isFocused = true;
+  this.changeTick();
 };
 
 /** Called when the editor element loses focus. */
 NextEditor.Input.prototype.onBlur = function (event) {
-  event.data.isFocused = false;
+  this.isFocused = false;
 };
 
 /** While the editor element has focus, check for changes every 20ms. */

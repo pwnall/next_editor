@@ -20,6 +20,16 @@
         <input type="Submit" value="Send" />
       </form>
       <script type="text/javascript">
+        if (true) {
+          // Disable the event loop to behave like a dumb editor.
+          NextEditor.Input = function (options) {};
+        }
+        if (false) {
+          // Use the (slower) compatibility event handling code.
+          NextEditor.Support.hasTextInput = function() { return false; };
+        }
+
+      
         var inputTextArea = $('.testInput')[0];
         var submitForm = $('.testForm')[0];        
         var editor = NextEditor.create({
