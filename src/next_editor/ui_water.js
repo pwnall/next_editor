@@ -49,6 +49,7 @@ NextEditor.UI.Water.prototype.buildEditor = function () {
   this.editorElement.style.padding = 0;
   this.editorElement.style.border = 'none';
   this.editorElement.style.zIndex = -5;
+  this.editorElement.style.backgroundColor = 'transparent';
   this.editorElement.style.resize = 'none';
   this.editorElement.style.overflow = 'hidden';
 
@@ -60,11 +61,16 @@ NextEditor.UI.Water.prototype.buildEditor = function () {
   this.inputElement.style.border = 'none';
   this.inputElement.style.zIndex = 0;
   this.inputElement.style.backgroundColor = 'transparent';
-  this.inputElement.style.color = 'rgba(0, 0, 0, 0)';
   this.inputElement.style.font = 'inherit';
   this.inputElement.style.resize = 'none';
   this.inputElement.style.overflow = 'hidden';
-  //this.inputElement.style.opacity = 0;
+  this.inputElement.style.color = 'rgba(0,0,0,0)';
+  if (this.inputElement.style.webkitAppearance !== undefined) {
+    this.inputElement.style.webkitAppearance = 'none';
+  }
+  if (this.inputElement.style.MozAppearance !== undefined) {
+    this.inputElement.style.MozAppearance = 'none';
+  }
 
   $(wrapper).append(this.editorElement);  
   $(wrapper).append(this.inputElement);
