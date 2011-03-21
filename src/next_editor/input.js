@@ -84,7 +84,7 @@ NextEditor.Input.prototype.createUnboundFunctions = function () {
     context.onTextInput();
   };
   this.unboundOnModernKey = function (event) {
-    context.onFirefoxKey(event);
+    context.onModernKey(event);
   };
   this.unboundOnFirefoxKey = function (event) {
     context.onFirefoxKey(event);
@@ -99,7 +99,7 @@ NextEditor.Input.prototype.createUnboundFunctions = function () {
 
 /** Issues a change notification after some time, so UI changes can  sink in. */
 NextEditor.Input.prototype.delayedNotifyChange = function () {
-  setTimeout(this.unboundNotifyChange, 10);  
+  setTimeout(this.unboundNotifyChange, 10);
 };
 
 /** True when an IME UI is displayed to help the user select characters. */
@@ -111,7 +111,7 @@ NextEditor.Input.prototype.imeCompositionInProgress = false;
  * input, because that throws off the IME UI.
  */
 NextEditor.Input.prototype.onIMECompositionStart = function (event) {
-  event.data.imeCompositionInProgress = true;
+  this.imeCompositionInProgress = true;
   return true;
 };
 
@@ -121,8 +121,8 @@ NextEditor.Input.prototype.onIMECompositionStart = function (event) {
  * throws off the IME editors.
  */
 NextEditor.Input.prototype.onIMECompositionEnd = function (event) {
-  event.data.imeCompositionInProgress = false;
-  event.data.delayedNotifyChange();
+  this.imeCompositionInProgress = false;
+  this.delayedNotifyChange();
   return true;
 };
 
