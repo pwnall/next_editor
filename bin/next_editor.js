@@ -295,7 +295,7 @@ NextEditor.Input.prototype.onIMECompositionEnd = function (event) {
 NextEditor.Input.prototype.onKeyDown = function (event) {
   if (event.which === 13) {
     event.preventDefault();
-    this.onSubmitKey();
+    this.observer.onSubmitKey();
     return false;
   }
   return true;
