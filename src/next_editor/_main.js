@@ -16,7 +16,11 @@ var NextEditor = {};
  *   formElement:: submitted when the user presses Enter (optional)
  *   forceWater:: uses the Water UI, even in newer browsers; intended for
  *                debugging the rigid CSS, or the Water itself
- *   tokenizer:: decies who 
+ *   tokenizer:: logic for breaking up the text into segments and deciding how
+ *               the segments should be highlighted
+ *   onChange:: function (element) that is invoked when the editor's text
+ *              changes, and receives the DOM element that contains the updated
+ *              text
  */
 NextEditor.create = function (options) {
   var formElement = options.formElement;
@@ -32,7 +36,8 @@ NextEditor.create = function (options) {
   var editorUI = new UIClass({
     inputElement: options.inputElement,
     formSubmitter: formSubmitter,
-    tokenizer: tokenizer
+    tokenizer: tokenizer,
+    onChange: options.onChange
   });
   
   var inputController = new NextEditor.Input({

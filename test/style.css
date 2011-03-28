@@ -44,3 +44,8 @@
 .testInput .nonword {
   color: #666666;
 }
+
+#log {
+  width: 760px;
+  height: 400px;
+}

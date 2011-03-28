@@ -25,6 +25,7 @@ NextEditor.UI.Fire = function (options) {
   }
   
   this.formSubmitter = options.formSubmitter;
+  this.onChangeCallback = options.onChange;
   this.buildEditor();
 };
 
@@ -105,8 +106,11 @@ NextEditor.UI.Fire.prototype.onPossibleChange = function () {
     this.setEditorContent(domData);    
     this.oldContent = this.editorElement.innerHTML;
     // Strip the newline off the value.
-    $(this.inputElement).attr('value',
-        content.text.substr(0, content.text.length - 1));
+    $(this.inputElement).val(content.text.substr(0, content.text.length - 1));
+  }
+  
+  if (this.onChangeCallback) {
+    this.onChangeCallback(this.inputElement);
   }
 };
 

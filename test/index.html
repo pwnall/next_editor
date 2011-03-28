@@ -27,6 +27,7 @@
         <textarea class="testInput"></textarea>
         <input type="Submit" value="Send" />
       </form>
+      <textarea id="log"></textarea>
       <script type="text/javascript">
         if (false) {
           // Disable the event loop to behave like a dumb editor.
@@ -37,13 +38,17 @@
           NextEditor.Support.hasTextInput = function() { return false; };
         }
 
-      
+        var logArea = $('#log')[0];
         var inputTextArea = $('.testInput')[0];
         var submitForm = $('.testForm')[0];        
         var editor = NextEditor.create({
           inputElement: inputTextArea,
           formElement: null,
-          forceWater: false
+          forceWater: false,
+          onChange: function (element) {
+            $(logArea).val($(logArea).val() +
+                           "\r\nChange: " + $(element).val());
+          }
         });
       </script>
     </div>

@@ -23,6 +23,7 @@ NextEditor.UI.Water = function (options) {
   }
   
   this.formSubmitter = options.formSubmitter;
+  this.onChangeCallback = options.onChange;
   this.buildEditor();
 };
 
@@ -83,7 +84,7 @@ NextEditor.UI.Water.prototype.oldContent = null;
 
 /** Parses the editor content to make it nice, only if it changed. */
 NextEditor.UI.Water.prototype.onPossibleChange = function () {
-  var text = $(this.inputElement).attr('value');
+  var text = $(this.inputElement).val();
   if (this.oldContent === text) {
     return;
   }
@@ -93,6 +94,10 @@ NextEditor.UI.Water.prototype.onPossibleChange = function () {
 
   this.setEditorContent(domData);    
   this.oldContent = text;
+
+  if (this.onChangeCallback) {
+    this.onChangeCallback(this.inputElement);
+  }
 };
 
 /** Updates the editor UI to reflect content change
