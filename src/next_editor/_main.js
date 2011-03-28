@@ -16,7 +16,9 @@ var NextEditor = {};
  *                  textarea will receive the editor's input
  *   forceWater:: uses the Water UI, even in newer browsers; intended for
  *                debugging the rigid CSS, or the Water itself
- *   multiLine:: if true, Enter keys 
+ *   multiLine:: if true, Enter keys insert newlines to the element, and the
+ *               user needs to type Ctrl+Enter or Shift+Enter to trigger a
+ *               submit event
  *   tokenizer:: logic for breaking up the text into segments and deciding how
  *               the segments should be highlighted
  *   onChange:: function (element) that is invoked when the editor's text
@@ -49,7 +51,7 @@ NextEditor.create = function (options) {
     eventSource: editorUI.eventSource(),
     imeSupport: editorUI.needsImeSupport(),
     multiLine: options.multiLine,
-    observer: editorUI,
+    observer: editorUI
   });
 
   return { ui: editorUI, input: inputController, tokenizer: tokenizer };

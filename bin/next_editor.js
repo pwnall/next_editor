@@ -1,4 +1,5 @@
-/** NextLang message composer UI.
+/**
+ * NextLang message composer UI.
  * Copyright 2010 Victor Costan and Ying Yin. MIT License.
  */
 
@@ -13,14 +14,20 @@ var NextEditor = {};
  * The options object should have the following properties:
  *   inputElement:: textarea serving as a placeholder for the editor; the
  *                  textarea will receive the editor's input
- *   formElement:: submitted when the user presses Enter (optional)
  *   forceWater:: uses the Water UI, even in newer browsers; intended for
  *                debugging the rigid CSS, or the Water itself
+ *   multiLine:: if true, Enter keys insert newlines to the element, and the
+ *               user needs to type Ctrl+Enter or Shift+Enter to trigger a
+ *               submit event
  *   tokenizer:: logic for breaking up the text into segments and deciding how
  *               the segments should be highlighted
  *   onChange:: function (element) that is invoked when the editor's text
  *              changes, and receives the DOM element that contains the updated
  *              text
+ *   onSubmitKey:: function (element) that is invoked when the user expresses
+ *                 their desire to submit a Enter in the input field; returning
+ *                 false will cancel the event, which is useful if you want to
+ *                 submit a form via AJAX
  */
 NextEditor.create = function (options) {
   var formElement = options.formElement;
@@ -35,16 +42,16 @@ NextEditor.create = function (options) {
   var UIClass = NextEditor.UI.editorClass(options.forceWater);
   var editorUI = new UIClass({
     inputElement: options.inputElement,
-    formSubmitter: formSubmitter,
     tokenizer: tokenizer,
-    onChange: options.onChange
+    onChange: options.onChange,
+    onSubmitKey: options.onSubmitKey
   });
   
   var inputController = new NextEditor.Input({
     eventSource: editorUI.eventSource(),
     imeSupport: editorUI.needsImeSupport(),
-    observer: editorUI,
-    multiLine: (formSubmitter ? false : true)
+    multiLine: options.multiLine,
+    observer: editorUI
   });
 
   return { ui: editorUI, input: inputController, tokenizer: tokenizer };
@@ -173,17 +180,17 @@ NextEditor.DOM.buildDom = function (tokens, cursor) {
  * The options object should have the following properties:
  *   eventSource:: the input-receiving element
  *   observer:: the object which receives input notifications
- *   multiLine:: if set, Enter key presses won't be treated as form submission
- *               requests
+ *   multiLine:: if set, Enter key presses will be treated as carriage returns,
+ *               and users will have to click Ctrl+Enter for form submission
  *   imeSupport:: supress change notifications while an IME interface is active
  * 
  * The following notifications will be dispatched:
- *   onSubmitKey:: the user expressed their desire to submit the editor's input
- *                 (e.g., by pressing the Enter key)
  *   onPossibleChange:: the input field's contents might have changed; false
  *                      positives may happen (no actual change), but the method
  *                      will definitely be called when a change occurs (no false
  *                      negatives)
+ *   onSubmitKey:: the user expressed their desire to submit the editor's input
+ *                 (e.g., by pressing the Enter key)
  */
 NextEditor.Input = function (options) {
   this.observer = options.observer;
@@ -210,9 +217,8 @@ NextEditor.Input = function (options) {
     eventSource.addEventListener('compositionend',
                                  this.unboundOnIMECompositionEnd, false);
   }
-  if (!options.multiLine) {
-    eventSource.addEventListener('keydown', this.unboundOnKeyDown, false);
-  }
+  this.multiLine = options.multiLine;
+  eventSource.addEventListener('keydown', this.unboundOnKeyDown, false);
 
   if (NextEditor.Support.hasTextInput()) {
     eventSource.addEventListener('textInput', this.unboundOnTextInput, false);
@@ -298,10 +304,14 @@ NextEditor.Input.prototype.onIMECompositionEnd = function (event) {
 
 /** Fires the submission callback when the user presses Enter. */
 NextEditor.Input.prototype.onKeyDown = function (event) {
-  if (event.which === 13) {
-    event.preventDefault();
-    this.observer.onSubmitKey();
-    return false;
+  if (event.which === 13 &&
+      (!this.multiLine || event.ctrlKey || event.shiftKey)) {
+    if (this.observer.onSubmitKey) {
+      if (!this.observer.onSubmitKey(event)) {
+        event.preventDefault();
+        return false;
+      }
+    }
   }
   return true;
 };
@@ -359,50 +369,6 @@ NextEditor.Input.prototype.notifyChange = function () {
     return;
   }
   this.observer.onPossibleChange();
-};
-/** Facilitates the submission of a form element. */
-NextEditor.Submitter = function (formElement) {
-  this.formElement = formElement;
-  if (!this.formElement) {
-    if (window.console) {
-      window.console.error("No form element given! noop");
-    }
-    return;
-  }
-};
-
-/** The form to be submitted. */
-NextEditor.Submitter.prototype.formElement = null;
-
-/** Set to true when an Enter press is intercepted.
- *
- * Without this, we tend to submit the same message multiple times.
- */
-NextEditor.Submitter.prototype.submitted = false;
-
-/** Submits the message composing form via XHR.
- *
- * The method also makes sure that the form is only submitted once.
- */
-NextEditor.Submitter.prototype.submit = function () {
-  if (this.submitted) {
-    return;
-  }  
-  this.submitted = true;
-  
-  // HACK: copy-pasted from rails.js because bubbling a submit event failed
-  var el      = $(this.formElement),
-      method  = el.attr('method') || el.attr('data-method') || 'GET',
-      url     = el.attr('action') || el.attr('href'),
-      dataType  = el.attr('data-type')  || 'script';
-
-  var data = el.is('form') ? el.serializeArray() : [];
-  $.ajax({
-    url: url,
-    data: data,
-    dataType: dataType,
-    type: method.toUpperCase()
-  });
 };
 /** Namespace for feature support detection across browsers. */
 NextEditor.Support = { };
@@ -571,7 +537,10 @@ NextEditor.Tokenizers.WordTokenizer.prototype.segmentToken =
  *
  * The options object should have the following properties:
  *   inputElement:: textarea for capturing events
- *   formSubmitter:: used to submit a form when the user presses Enter
+ *   onSubmitKey:: function (element) that is invoked when the user expresses
+ *                 their desire to submit a Enter in the input field; returning
+ *                 false will cancel the event, which is useful if you want to
+ *                 submit a form via AJAX
  *   tokenizer:: conforms to the NextEditor.Tokenizer interface for deciding
  *               which parts of the text get highlighted
  */
@@ -591,8 +560,8 @@ NextEditor.UI.Fire = function (options) {
     return;
   }
   
-  this.formSubmitter = options.formSubmitter;
   this.onChangeCallback = options.onChange;
+  this.onSubmitCallback = options.onSubmitKey;
   this.buildEditor();
 };
 
@@ -706,7 +675,7 @@ NextEditor.UI.Fire.prototype.setEditorContent = function (domData) {
 
 /** Submits the editor's form if the user presses Enter. */
 NextEditor.UI.Fire.prototype.onSubmitKey = function () {
-  this.formSubmitter.submit();
+  return this.onSubmitCallback(this.inputElement);
 };
 
 /** The DOM element receiving user input events. */
@@ -722,7 +691,10 @@ NextEditor.UI.Fire.prototype.needsImeSupport = function () {
  *
  * The options object should have the following properties:
  *   inputElement:: textarea for capturing events
- *   formSubmitter:: used to submit a form when the user presses Enter
+ *   onSubmitKey:: function (element) that is invoked when the user expresses
+ *                 their desire to submit a Enter in the input field; returning
+ *                 false will cancel the event, which is useful if you want to
+ *                 submit a form via AJAX
  *   tokenizer:: conforms to the NextEditor.Tokenizer interface for deciding
  *               which parts of the text get highlighted
  */
@@ -742,8 +714,8 @@ NextEditor.UI.Water = function (options) {
     return;
   }
   
-  this.formSubmitter = options.formSubmitter;
   this.onChangeCallback = options.onChange;
+  this.onSubmitCallback = options.onSubmitKey;
   this.buildEditor();
 };
 
@@ -833,8 +805,8 @@ NextEditor.UI.Water.prototype.setEditorContent = function (domData) {
 };
 
 /** Submits the editor's form if the user presses Enter. */
-NextEditor.UI.Water.prototype.onSubmitKey = function () {
-  this.formSubmitter.submit();
+NextEditor.UI.Fire.prototype.onSubmitKey = function () {
+  return this.onSubmitCallback(this.inputElement);
 };
 
 /** The DOM element receiving user input events. */
