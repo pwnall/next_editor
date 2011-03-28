@@ -129,11 +129,9 @@ NextEditor.Input.prototype.onIMECompositionEnd = function (event) {
 NextEditor.Input.prototype.onKeyDown = function (event) {
   if (event.which === 13 &&
       (!this.multiLine || event.ctrlKey || event.shiftKey)) {
-    if (this.observer.onSubmitKey) {
-      if (!this.observer.onSubmitKey(event)) {
-        event.preventDefault();
-        return false;
-      }
+    if (!this.observer.onSubmitKey(event)) {
+      event.preventDefault();
+      return false;
     }
   }
   return true;

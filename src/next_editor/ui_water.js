@@ -117,7 +117,11 @@ NextEditor.UI.Water.prototype.setEditorContent = function (domData) {
 
 /** Submits the editor's form if the user presses Enter. */
 NextEditor.UI.Fire.prototype.onSubmitKey = function () {
-  return this.onSubmitCallback(this.inputElement);
+  if (this.onSubmitCallback) {
+    return this.onSubmitCallback(this.inputElement);
+  } else {
+    return true;
+  }
 };
 
 /** The DOM element receiving user input events. */

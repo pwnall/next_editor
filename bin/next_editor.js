@@ -30,10 +30,6 @@ var NextEditor = {};
  *                 submit a form via AJAX
  */
 NextEditor.create = function (options) {
-  var formElement = options.formElement;
-  var formSubmitter = (formElement) ? (new NextEditor.Submitter(formElement)) :
-                                      null;
-    
   var tokenizer = options.tokenizer;
   if (!tokenizer) {
     tokenizer = new NextEditor.Tokenizers.WordTokenizer({});
@@ -306,11 +302,9 @@ NextEditor.Input.prototype.onIMECompositionEnd = function (event) {
 NextEditor.Input.prototype.onKeyDown = function (event) {
   if (event.which === 13 &&
       (!this.multiLine || event.ctrlKey || event.shiftKey)) {
-    if (this.observer.onSubmitKey) {
-      if (!this.observer.onSubmitKey(event)) {
-        event.preventDefault();
-        return false;
-      }
+    if (!this.observer.onSubmitKey(event)) {
+      event.preventDefault();
+      return false;
     }
   }
   return true;
@@ -675,7 +669,11 @@ NextEditor.UI.Fire.prototype.setEditorContent = function (domData) {
 
 /** Submits the editor's form if the user presses Enter. */
 NextEditor.UI.Fire.prototype.onSubmitKey = function () {
-  return this.onSubmitCallback(this.inputElement);
+  if (this.onSubmitCallback) {
+    return this.onSubmitCallback(this.inputElement);
+  } else {
+    return true;
+  }
 };
 
 /** The DOM element receiving user input events. */
@@ -806,7 +804,11 @@ NextEditor.UI.Water.prototype.setEditorContent = function (domData) {
 
 /** Submits the editor's form if the user presses Enter. */
 NextEditor.UI.Fire.prototype.onSubmitKey = function () {
-  return this.onSubmitCallback(this.inputElement);
+  if (this.onSubmitCallback) {
+    return this.onSubmitCallback(this.inputElement);
+  } else {
+    return true;
+  }
 };
 
 /** The DOM element receiving user input events. */

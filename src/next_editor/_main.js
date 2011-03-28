@@ -30,10 +30,6 @@ var NextEditor = {};
  *                 submit a form via AJAX
  */
 NextEditor.create = function (options) {
-  var formElement = options.formElement;
-  var formSubmitter = (formElement) ? (new NextEditor.Submitter(formElement)) :
-                                      null;
-    
   var tokenizer = options.tokenizer;
   if (!tokenizer) {
     tokenizer = new NextEditor.Tokenizers.WordTokenizer({});
