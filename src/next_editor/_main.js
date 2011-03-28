@@ -1,4 +1,5 @@
-/** NextLang message composer UI.
+/**
+ * NextLang message composer UI.
  * Copyright 2010 Victor Costan and Ying Yin. MIT License.
  */
 
@@ -13,14 +14,18 @@ var NextEditor = {};
  * The options object should have the following properties:
  *   inputElement:: textarea serving as a placeholder for the editor; the
  *                  textarea will receive the editor's input
- *   formElement:: submitted when the user presses Enter (optional)
  *   forceWater:: uses the Water UI, even in newer browsers; intended for
  *                debugging the rigid CSS, or the Water itself
+ *   multiLine:: if true, Enter keys 
  *   tokenizer:: logic for breaking up the text into segments and deciding how
  *               the segments should be highlighted
  *   onChange:: function (element) that is invoked when the editor's text
  *              changes, and receives the DOM element that contains the updated
  *              text
+ *   onSubmitKey:: function (element) that is invoked when the user expresses
+ *                 their desire to submit a Enter in the input field; returning
+ *                 false will cancel the event, which is useful if you want to
+ *                 submit a form via AJAX
  */
 NextEditor.create = function (options) {
   var formElement = options.formElement;
@@ -35,16 +40,16 @@ NextEditor.create = function (options) {
   var UIClass = NextEditor.UI.editorClass(options.forceWater);
   var editorUI = new UIClass({
     inputElement: options.inputElement,
-    formSubmitter: formSubmitter,
     tokenizer: tokenizer,
-    onChange: options.onChange
+    onChange: options.onChange,
+    onSubmitKey: options.onSubmitKey
   });
   
   var inputController = new NextEditor.Input({
     eventSource: editorUI.eventSource(),
     imeSupport: editorUI.needsImeSupport(),
+    multiLine: options.multiLine,
     observer: editorUI,
-    multiLine: (formSubmitter ? false : true)
   });
 
   return { ui: editorUI, input: inputController, tokenizer: tokenizer };

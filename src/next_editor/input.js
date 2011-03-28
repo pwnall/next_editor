@@ -3,17 +3,17 @@
  * The options object should have the following properties:
  *   eventSource:: the input-receiving element
  *   observer:: the object which receives input notifications
- *   multiLine:: if set, Enter key presses won't be treated as form submission
- *               requests
+ *   multiLine:: if set, Enter key presses will be treated as carriage returns,
+ *               and users will have to click Ctrl+Enter for form submission
  *   imeSupport:: supress change notifications while an IME interface is active
  * 
  * The following notifications will be dispatched:
- *   onSubmitKey:: the user expressed their desire to submit the editor's input
- *                 (e.g., by pressing the Enter key)
  *   onPossibleChange:: the input field's contents might have changed; false
  *                      positives may happen (no actual change), but the method
  *                      will definitely be called when a change occurs (no false
  *                      negatives)
+ *   onSubmitKey:: the user expressed their desire to submit the editor's input
+ *                 (e.g., by pressing the Enter key)
  */
 NextEditor.Input = function (options) {
   this.observer = options.observer;
@@ -40,9 +40,8 @@ NextEditor.Input = function (options) {
     eventSource.addEventListener('compositionend',
                                  this.unboundOnIMECompositionEnd, false);
   }
-  if (!options.multiLine) {
-    eventSource.addEventListener('keydown', this.unboundOnKeyDown, false);
-  }
+  this.multiLine = options.multiLine;
+  eventSource.addEventListener('keydown', this.unboundOnKeyDown, false);
 
   if (NextEditor.Support.hasTextInput()) {
     eventSource.addEventListener('textInput', this.unboundOnTextInput, false);
@@ -128,10 +127,14 @@ NextEditor.Input.prototype.onIMECompositionEnd = function (event) {
 
 /** Fires the submission callback when the user presses Enter. */
 NextEditor.Input.prototype.onKeyDown = function (event) {
-  if (event.which === 13) {
-    event.preventDefault();
-    this.observer.onSubmitKey();
-    return false;
+  if (event.which === 13 &&
+      (!this.multiLine || event.ctrlKey || event.shiftKey)) {
+    if (this.observer.onSubmitKey) {
+      if (!this.observer.onSubmitKey(event)) {
+        event.preventDefault();
+        return false;
+      }
+    }
   }
   return true;
 };

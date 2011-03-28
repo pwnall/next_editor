@@ -2,7 +2,10 @@
  *
  * The options object should have the following properties:
  *   inputElement:: textarea for capturing events
- *   formSubmitter:: used to submit a form when the user presses Enter
+ *   onSubmitKey:: function (element) that is invoked when the user expresses
+ *                 their desire to submit a Enter in the input field; returning
+ *                 false will cancel the event, which is useful if you want to
+ *                 submit a form via AJAX
  *   tokenizer:: conforms to the NextEditor.Tokenizer interface for deciding
  *               which parts of the text get highlighted
  */
@@ -22,8 +25,8 @@ NextEditor.UI.Water = function (options) {
     return;
   }
   
-  this.formSubmitter = options.formSubmitter;
   this.onChangeCallback = options.onChange;
+  this.onSubmitCallback = options.onSubmitKey;
   this.buildEditor();
 };
 
@@ -113,8 +116,8 @@ NextEditor.UI.Water.prototype.setEditorContent = function (domData) {
 };
 
 /** Submits the editor's form if the user presses Enter. */
-NextEditor.UI.Water.prototype.onSubmitKey = function () {
-  this.formSubmitter.submit();
+NextEditor.UI.Fire.prototype.onSubmitKey = function () {
+  return this.onSubmitCallback(this.inputElement);
 };
 
 /** The DOM element receiving user input events. */
