@@ -6,6 +6,8 @@
  *   multiLine:: if set, Enter key presses will be treated as carriage returns,
  *               and users will have to click Ctrl+Enter for form submission
  *   imeSupport:: supress change notifications while an IME interface is active
+ *   eventLogger:: function (eventName, event) that will be called on all
+ *                 UI events
  * 
  * The following notifications will be dispatched:
  *   onPossibleChange:: the input field's contents might have changed; false
@@ -32,7 +34,12 @@ NextEditor.Input = function (options) {
     return;
   }
 
-  this.createUnboundFunctions();
+  this.eventLogger = options.eventLogger;
+  if (this.eventLogger) {
+    this.createLoggedUnboundFunctions();
+  } else {
+    this.createFastUnboundFunctions();
+  }
   
   if (options.imeSupport) {
     eventSource.addEventListener('compositionstart',
@@ -62,7 +69,7 @@ NextEditor.Input = function (options) {
 };
 
 /** Creates unbound versions of some methods, with minimum closure overhead. */
-NextEditor.Input.prototype.createUnboundFunctions = function () {
+NextEditor.Input.prototype.createFastUnboundFunctions = function () {
   var context = this;
   this.unboundChangeTick = function () {
     context.changeTick();
@@ -92,6 +99,49 @@ NextEditor.Input.prototype.createUnboundFunctions = function () {
     context.onFocus(event);
   };
   this.unboundOnBlur = function (event) {
+    context.onBlur(event);
+  };
+};
+
+/** Creates unbound versions of some methods, with minimum closure overhead. */
+NextEditor.Input.prototype.createLoggedUnboundFunctions = function () {
+  var context = this;
+  this.unboundChangeTick = function () {
+    context.changeTick();
+  };
+  this.unboundNotifyChange = function () {
+    context.notifyChange();
+  };
+  this.unboundOnIMECompositionStart = function (event) {
+    context.eventLogger('compositionstart', event);
+    context.onIMECompositionStart(event);
+  };
+  this.unboundOnIMECompositionEnd = function (event) {
+    context.eventLogger('compositionend', event);
+    context.onIMECompositionEnd(event);
+  };
+  this.unboundOnKeyDown = function (event) {
+    context.eventLogger('keydown', event);
+    context.onKeyDown(event);
+  };
+  this.unboundOnTextInput = function (event) {
+    context.eventLogger('textInput', event);
+    context.onTextInput();
+  };
+  this.unboundOnModernKey = function (event) {
+    context.eventLogger('keyup', event);
+    context.onModernKey(event);
+  };
+  this.unboundOnFirefoxKey = function (event) {
+    context.eventLogger('keyup-ff', event);
+    context.onFirefoxKey(event);
+  };
+  this.unboundOnFocus = function (event) {
+    context.eventLogger('focus', event);
+    context.onFocus(event);
+  };
+  this.unboundOnBlur = function (event) {
+    context.eventLogger('blur', event);
     context.onBlur(event);
   };
 };

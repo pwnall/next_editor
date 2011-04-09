@@ -24,6 +24,9 @@ var NextEditor = {};
  *   onChange:: function (element) that is invoked when the editor's text
  *              changes, and receives the DOM element that contains the updated
  *              text
+ *   onEverything:: function (eventName, event) that will be called on all
+ *                  NextEditor UI events; this is intended for debugging, and
+ *                  logging all events may not be feasiable in production
  *   onSubmitKey:: function (element) that is invoked when the user expresses
  *                 their desire to submit a Enter in the input field; returning
  *                 false will cancel the event, which is useful if you want to
@@ -44,6 +47,7 @@ NextEditor.create = function (options) {
   });
   
   var inputController = new NextEditor.Input({
+    eventLogger: options.onEverything,
     eventSource: editorUI.eventSource(),
     imeSupport: editorUI.needsImeSupport(),
     multiLine: options.multiLine,

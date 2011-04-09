@@ -21,6 +21,29 @@
       </form>
       <textarea id="log"></textarea>
       <script type="text/javascript">
+        var onChangeFn = function (element) {
+          $(logArea).val($(logArea).val() + "\r\nChange: " + $(element).val());
+        };
+        var onEventFn = function (eventName, event) {
+          var data = {};
+          if (eventName == 'keydown' || eventName == 'keyup') {
+            data = {key: event.keyCode};
+          } else if (eventName == 'textInput') {
+            data = {data: event.data};
+          } else if (eventName == 'compositionstart' ||
+                     eventName == 'compositionend') {
+            data = {data: event.data};
+          }
+          $(logArea).val($(logArea).val() + "\r\nEvent: " + eventName + ":" +
+                         JSON.stringify(data));
+          console.log([eventName, event]);
+        };
+        var onSubmitFn = function (element) {
+          $(logArea).val($(logArea).val() +
+                         "\r\Submit: " + $(element).val());
+          return false;
+        };
+
         if (false) {
           // Disable the event loop to behave like a dumb editor.
           NextEditor.Input = function (options) {};
@@ -29,6 +52,12 @@
           // Use the (slower) compatibility event handling code.
           NextEditor.Support.hasTextInput = function() { return false; };
         }
+        if (true) {
+          // Disable logging for benchmarks.
+          onChangeFn = null;
+          onEventFn = null;
+          onSubmitFn = null;
+        }
 
         var logArea = $('#log')[0];
         var inputTextArea = $('.testInput')[0];
@@ -36,15 +65,9 @@
           inputElement: inputTextArea,
           forceWater: false,
           multiLine: true,
-          onChange: function (element) {
-            $(logArea).val($(logArea).val() +
-                           "\r\nChange: " + $(element).val());
-          },
-          onSubmitKey: function (element) {
-            $(logArea).val($(logArea).val() +
-                           "\r\Submit: " + $(element).val());
-            return false;
-          }
+          onChange: onChangeFn,
+          onEverything: onEventFn,
+          onSubmitKey: onSubmitFn
         });
       </script>
     </div>
