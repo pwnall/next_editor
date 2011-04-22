@@ -1,7 +1,8 @@
 .testForm {
   position: relative;
   width: 800px;
-  height: 240px;
+  height: 200px;
+  padding-bottom: 20px;
 }
 .testInput {
   position: relative;
