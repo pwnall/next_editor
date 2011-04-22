@@ -116,7 +116,7 @@ NextEditor.UI.Water.prototype.setEditorContent = function (domData) {
 };
 
 /** Submits the editor's form if the user presses Enter. */
-NextEditor.UI.Fire.prototype.onSubmitKey = function () {
+NextEditor.UI.Water.prototype.onSubmitKey = function () {
   if (this.onSubmitCallback) {
     return this.onSubmitCallback(this.inputElement);
   } else {
@@ -132,4 +132,9 @@ NextEditor.UI.Water.prototype.eventSource = function () {
 /** True if no change events should be generated when an IME UI is active. */
 NextEditor.UI.Water.prototype.needsImeSupport = function () {
   return false;
+};
+
+/** Focuses editor's input UI. */
+NextEditor.UI.Water.prototype.focus = function () {
+  $(this.inputElement).focus();
 };

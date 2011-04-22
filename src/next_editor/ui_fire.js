@@ -158,3 +158,9 @@ NextEditor.UI.Fire.prototype.eventSource = function () {
 NextEditor.UI.Fire.prototype.needsImeSupport = function () {
   return true;
 };
+
+/** Focuses editor's input UI. */
+NextEditor.UI.Fire.prototype.focus = function () {
+  $(this.editorElement).focus();
+};
+
