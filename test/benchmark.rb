@@ -18,14 +18,11 @@ browser = browsers.first
 print 'Press Enter to start...'
 gets
 
-browser.type_keysequence 'Ctrl+R'
-sleep 1
 browser.activate
-sleep 1
+browser.type_keysequence 'Ctrl+R'
+sleep 2
 
 t0 = Time.now
-bench_reps.times do
-  browser.type_string bench_string, 60.0 / bench_cpm
-end
+browser.type_string bench_string * bench_reps, 60.0 / bench_cpm
 t1 = Time.now
 print "Finished in #{'%.2f' % (t1 - t0)}s\n"
