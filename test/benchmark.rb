@@ -3,26 +3,25 @@
 bench_string = 'boom headshot '
 bench_reps = 19
 bench_cpm = 530
+bench_reload_delay = 3
 
 require 'rubygems'
 require 'x_do'
 
 xdo = XDo.new
-browsers = xdo.find_windows(:name => 'NextEditor Benchmark')
-if browsers.length == 1
-  bench_reload_delay = 2
-else
-  old_length = browsers.length
-  browsers = xdo.find_windows(:name => 'NextLang')
+titles = ['NextEditor Benchmark', 'NextLang', 'VirtualBox']
+browser_sets = titles.map { |title| xdo.find_windows(:name => title) }
+browser = nil
+browser_sets.each do |browsers|
   if browsers.length == 1
-    bench_reload_delay = 5
-  else
-    print "Wanted 1 window, found #{old_length} / #{browsers.length}!\n"
-    exit
+    browser = browsers.first
+    break
   end
 end
+unless browser
+  print "Wanted 1 window, found #{browser_sets.map(&:length).join(' / ')}!\n"
+end
 
-browser = browsers.first
 print 'Press Enter to start...'
 gets
 
