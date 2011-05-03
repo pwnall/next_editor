@@ -652,7 +652,7 @@ NextEditor.UI.Fire.prototype.buildEditor = function () {
   $(wrapper).append(this.editorElement);
   $(wrapper).append(this.inputElement);
   
-  var text = $(this.inputElement).attr('value');
+  var text = $(this.inputElement).val();
   var tokens = this.tokenizer.tokenize(text + "\n");
   var cursor = (document.activeElement === this.editorElement) ?
                text.length : null;
